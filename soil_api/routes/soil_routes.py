@@ -14,6 +14,7 @@ from soil_api.models.soil import (
     SoilPropertyJSON,
     SoilType,
     SoilTypeJSON,
+    SoilTypes,
 )
 from soil_api.utils.point_extraction import extract_point_from_raster
 
@@ -36,7 +37,7 @@ async def get_soil_type(
         raster_path=soil_map_path, latitude=lat, longitude=lon
     )
 
-    soil_type_ = settings.soil_types_mapping.get(value, "No information available.")
+    soil_type_ = settings.soil_types_mapping.get(value, SoilTypes.No_information)
     soil_type = SoilType(
         soil_type=soil_type_,
     )

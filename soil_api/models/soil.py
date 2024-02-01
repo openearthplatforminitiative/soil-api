@@ -45,6 +45,7 @@ class SoilTypes(Enum):
     Stagnosols = "Stagnosols"
     Umbrisols = "Umbrisols"
     Vertisols = "Vertisols"
+    No_information = "No information available."
 
 
 class SoilType(BaseModel):
