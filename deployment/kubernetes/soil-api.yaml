@@ -14,7 +14,7 @@ spec:
         app: soil-api
     spec:
       containers:
-        - image: ghcr.io/openearthplatforminitiative/soil-api:0.1.0
+        - image: ghcr.io/openearthplatforminitiative/soil-api:0.0.1
           name: soil-api
           ports:
             - containerPort: 8080
@@ -22,7 +22,7 @@ spec:
             - name: API_ROOT_PATH
               value: "/soil"
             - name: VERSION
-              value: "0.1.0"
+              value: "0.0.1"
             - name: API_DOMAIN
               valueFrom:
                 configMapKeyRef:
