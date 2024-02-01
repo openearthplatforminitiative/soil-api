@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: soil-api
+spec:
+  replicas: 1
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: soil-api
+  template:
+    metadata:
+      labels:
+        app: soil-api
+    spec:
+      containers:
+        - image: ghcr.io/openearthplatforminitiative/soil-api:0.1.0
+          name: soil-api
+          ports:
+            - containerPort: 8080
+          env:
+            - name: API_ROOT_PATH
+              value: "/soil"
+            - name: VERSION
+              value: "0.1.0"
+            - name: API_DOMAIN
+              valueFrom:
+                configMapKeyRef:
+                  name: openepi-apps-config
+                  key: api_domain
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: soil-api
+spec:
+  ports:
+    - port: 80
+      targetPort: 8080
+  selector:
+    app: soil-api
+---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: stripprefix-soil
+spec:
+  stripPrefix:
+    prefixes:
+      - /soil
+    forceSlash: true
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: soil-api
+spec:
+  entryPoints:
+    - web
+  routes:
+  - kind: Rule
+    match: PathPrefix(`/soil`)
+    services:
+    - kind: Service
+      name: soil-api
+      port: 80
+    middlewares:
+    - name: stripprefix-soil

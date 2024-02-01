@@ -1,0 +1,19 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: soil-api
+  namespace: apps
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  destination:
+    namespace: apps
+    server: https://kubernetes.default.svc
+  project: apps
+  source:
+    path: deployment/kubernetes/
+    repoURL: https://github.com/openearthplatforminitiative/soil-api
+    targetRevision: HEAD
+  syncPolicy:
+    automated:
+      prune: true
