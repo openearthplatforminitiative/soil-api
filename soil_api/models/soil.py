@@ -14,37 +14,71 @@ class GeometryType(Enum):
     Point = "Point"
 
 
+# class SoilTypes(Enum):
+#     Acrisols = "Acrisols"
+#     Albeluvisols = "Albeluvisols"
+#     Alisols = "Alisols"
+#     Andosols = "Andosols"
+#     Arenosols = "Arenosols"
+#     Calcisols = "Calcisols"
+#     Cambisols = "Cambisols"
+#     Chernozems = "Chernozems"
+#     Cryosols = "Cryosols"
+#     Durisols = "Durisols"
+#     Ferralsols = "Ferralsols"
+#     Fluvisols = "Fluvisols"
+#     Gleysols = "Gleysols"
+#     Gypsisols = "Gypsisols"
+#     Histosols = "Histosols"
+#     Kastanozems = "Kastanozems"
+#     Leptosols = "Leptosols"
+#     Lixisols = "Lixisols"
+#     Luvisols = "Luvisols"
+#     Nitisols = "Nitisols"
+#     Phaeozems = "Phaeozems"
+#     Planosols = "Planosols"
+#     Plinthosols = "Plinthosols"
+#     Podzols = "Podzols"
+#     Regosols = "Regosols"
+#     Solonchaks = "Solonchaks"
+#     Solonetz = "Solonetz"
+#     Stagnosols = "Stagnosols"
+#     Umbrisols = "Umbrisols"
+#     Vertisols = "Vertisols"
+#     No_information = "No information available."
+
+
 class SoilTypes(Enum):
-    Acrisols = "Acrisols"
-    Albeluvisols = "Albeluvisols"
-    Alisols = "Alisols"
-    Andosols = "Andosols"
-    Arenosols = "Arenosols"
-    Calcisols = "Calcisols"
-    Cambisols = "Cambisols"
-    Chernozems = "Chernozems"
-    Cryosols = "Cryosols"
-    Durisols = "Durisols"
-    Ferralsols = "Ferralsols"
-    Fluvisols = "Fluvisols"
-    Gleysols = "Gleysols"
-    Gypsisols = "Gypsisols"
-    Histosols = "Histosols"
-    Kastanozems = "Kastanozems"
-    Leptosols = "Leptosols"
-    Lixisols = "Lixisols"
-    Luvisols = "Luvisols"
-    Nitisols = "Nitisols"
-    Phaeozems = "Phaeozems"
-    Planosols = "Planosols"
-    Plinthosols = "Plinthosols"
-    Podzols = "Podzols"
-    Regosols = "Regosols"
-    Solonchaks = "Solonchaks"
-    Solonetz = "Solonetz"
-    Stagnosols = "Stagnosols"
-    Umbrisols = "Umbrisols"
-    Vertisols = "Vertisols"
+    t0 = "Acrisols"
+    t1 = "Albeluvisols"
+    t2 = "Alisols"
+    t3 = "Andosols"
+    t4 = "Arenosols"
+    t5 = "Calcisols"
+    t6 = "Cambisols"
+    t7 = "Chernozems"
+    t8 = "Cryosols"
+    t9 = "Durisols"
+    t10 = "Ferralsols"
+    t11 = "Fluvisols"
+    t12 = "Gleysols"
+    t13 = "Gypsisols"
+    t14 = "Histosols"
+    t15 = "Kastanozems"
+    t16 = "Leptosols"
+    t17 = "Lixisols"
+    t18 = "Luvisols"
+    t19 = "Nitisols"
+    t20 = "Phaeozems"
+    t21 = "Planosols"
+    t22 = "Plinthosols"
+    t23 = "Podzols"
+    t24 = "Regosols"
+    t25 = "Solonchaks"
+    t26 = "Solonetz"
+    t27 = "Stagnosols"
+    t28 = "Umbrisols"
+    t29 = "Vertisols"
     No_information = "No information available."
 
 
@@ -54,7 +88,7 @@ class SoilType(BaseModel):
     )
 
 
-class SoilProperties(Enum):
+class SoilPropertiesNames(Enum):
     bdod = "Bulk density"  # cg/cm³
     cec = "Cation exchange capacity (CEC pH 7)"  # mmol(c)/kg
     cfvo = "Coarse fragments"  # cm³/dm³
@@ -68,6 +102,34 @@ class SoilProperties(Enum):
     soc = "Soil organic carbon"  # dg/kg
 
 
+class SoilPropertiesCodes(Enum):
+    bdod = "bdod"  # cg/cm³
+    cec = "cec"  # mmol(c)/kg
+    cfvo = "cfvo"  # cm³/dm³
+    clay = "clay"  # g/kg
+    nitrogen = "nitrogen"  # cg/kg
+    ocd = "ocd"  # hg/m³
+    ocs = "ocs"  # t/ha
+    phh2o = "phh2o"  # pH*10
+    sand = "sand"  # g/kg
+    silt = "silt"  # g/kg
+    soc = "soc"  # dg/kg
+
+
+class SoilPropertyUnits(Enum):
+    bdod = "cg/cm³"
+    cec = "mmol(c)/kg"
+    cfvo = "cm³/dm³"
+    clay = "g/kg"
+    nitrogen = "cg/kg"
+    ocd = "hg/m³"
+    ocs = "t/ha"
+    phh2o = "pH*10"
+    sand = "g/kg"
+    silt = "g/kg"
+    soc = "dg/kg"
+
+
 class SoilProperty(BaseModel):
     value: int | str = Field(
         ..., description="The value of the queried soil property", example=50
@@ -75,7 +137,7 @@ class SoilProperty(BaseModel):
     unit: str = Field(
         ..., description="The unit of the queried soil property", example="g/kg"
     )
-    property: SoilProperties = Field(
+    property: SoilPropertiesNames = Field(
         ..., description="The queried soil property", example="Soil organic carbon"
     )
 
@@ -90,6 +152,71 @@ class PointGeometry(BaseModel):
     type: GeometryType
 
 
+class SoilLayerList(BaseModel):
+    layers: List[SoilLayer] = Field(..., description="The queried soil layers")
+
+
+class SoilLayer(BaseModel):
+    code: SoilPropertiesCodes = Field(
+        ..., description="The soil property code", example="bdod"
+    )
+    name: SoilPropertiesNames = Field(
+        ..., description="The name of the soil property", example="Bulk density"
+    )
+    unit: SoilPropertyUnits = Field(
+        ..., description="The unit of the queried soil property", example="g/kg"
+    )
+    depths: List[SoilDepth] = Field(..., description="The queried soil depths")
+
+
+class SoilPropertyValues(BaseModel):
+    mean: float | None = Field(
+        None, description="The mean value of the queried soil property", example=50
+    )
+    Q0_05: float | None = Field(
+        None, description="The 5th percentile of the queried soil property", example=40
+    )
+    Q0_5: float | None = Field(
+        None, description="The 50th percentile of the queried soil property", example=50
+    )
+    Q0_95: float | None = Field(
+        None, description="The 95th percentile of the queried soil property", example=60
+    )
+    uncertainty: float | None = Field(
+        None, description="The uncertainty of the queried soil property", example=5
+    )
+
+
+class SoilDepthLabels(Enum):
+    depth_0_5 = "0-5cm"
+    depth_5_15 = "5-15cm"
+    depth_15_30 = "15-30cm"
+    depth_30_60 = "30-60cm"
+    depth_60_100 = "60-100cm"
+    depth_100_200 = "100-200cm"
+    depth_0_30 = "0-30cm"
+
+
+class SoilDepth(BaseModel):
+    range: DepthRange = Field(..., description="The queried soil depth range")
+    label: SoilDepthLabels = Field(..., description="The queried soil depth label")
+    values: SoilPropertyValues = Field(
+        ..., description="The queried soil property values"
+    )
+
+
+class DepthRange(BaseModel):
+    top_depth: int = Field(
+        ..., description="The top depth of the queried soil property", example=0
+    )
+    bottom_depth: int = Field(
+        ..., description="The bottom depth of the queried soil property", example=5
+    )
+    unit_depth: str = Field(
+        ..., description="The unit of the queried soil property", example="cm"
+    )
+
+
 class SoilPropertyJSON(BaseModel):
     type: FeatureType = Field(
         description="The feature type of this geojson-object",
@@ -100,7 +227,7 @@ class SoilPropertyJSON(BaseModel):
         ...,
         description="The geometry of the queried location",
     )
-    properties: SoilProperty = Field(
+    properties: SoilLayerList = Field(
         ...,
         description="The queried soil property information",
     )
