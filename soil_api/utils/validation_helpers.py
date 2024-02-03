@@ -118,3 +118,34 @@ def validate_values(values: list[str]) -> None:
             status_code=400,
             detail=f"Invalid values: {', '.join(invalid_values)}. Must be one of: {', '.join(SoilPropertyValues.__annotations__)}",
         )
+
+
+def validate_bbox(bbox: list[float]) -> None:
+    """Validate the bbox parameter.
+
+    Parameters:
+    - bbox (list[float]): The bounding box to validate.
+
+    Returns:
+    None
+    """
+    if len(bbox) != 4:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid bbox: {bbox}. Must be a list of 4 float values.",
+        )
+    if bbox[0] > bbox[2] or bbox[1] > bbox[3]:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid bbox: {bbox}. The first two values must be the lower left corner and the last two values must be the upper right corner.",
+        )
+    if not (
+        ISRIC_ROI["min_lat"] <= bbox[1] <= ISRIC_ROI["max_lat"]
+        and ISRIC_ROI["min_lon"] <= bbox[0] <= ISRIC_ROI["max_lon"]
+        and ISRIC_ROI["min_lat"] <= bbox[3] <= ISRIC_ROI["max_lat"]
+        and ISRIC_ROI["min_lon"] <= bbox[2] <= ISRIC_ROI["max_lon"]
+    ):
+        raise HTTPException(
+            status_code=404,
+            detail="Queried bounding box is outside the region of interest",
+        )

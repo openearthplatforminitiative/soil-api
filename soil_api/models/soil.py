@@ -12,6 +12,7 @@ class FeatureType(Enum):
 
 class GeometryType(Enum):
     Point = "Point"
+    Polygon = "Polygon"
 
 
 # class SoilTypes(Enum):
@@ -79,7 +80,7 @@ class SoilTypes(Enum):
     t27 = "Stagnosols"
     t28 = "Umbrisols"
     t29 = "Vertisols"
-    No_information = "No information available."
+    No_information = "No information available"
 
 
 class SoilTypeProbability(BaseModel):
@@ -99,6 +100,15 @@ class SoilTypeInfo(BaseModel):
     )
     probabilities: List[SoilTypeProbability] | None = Field(
         None, description="The queried soil type probabilities"
+    )
+
+
+class SoilTypeSummary(BaseModel):
+    soil_type: SoilTypes = Field(
+        ..., description="The queried soil type", example="Acrisols"
+    )
+    count: int = Field(
+        ..., description="The count of the queried soil type", example=70
     )
 
 
@@ -162,6 +172,18 @@ class PointGeometry(BaseModel):
         example=[60.5, 11.59],
         min_items=2,
         max_items=2,
+    )
+    type: GeometryType
+
+
+class BoundingBoxGeometry(BaseModel):
+    coordinates: List[List[List[float]]] = Field(
+        description="[[[min_lon, min_lat], [max_lon, min_lat], [max_lon, max_lat], [min_lon, max_lat], [min_lon, min_lat]]]",
+        example=[
+            [[60.5, 11.59], [60.6, 11.59], [60.6, 11.6], [60.5, 11.6], [60.5, 11.59]]
+        ],
+        # min_items=5,
+        # max_items=5,
     )
     type: GeometryType
 
@@ -260,4 +282,26 @@ class SoilTypeJSON(BaseModel):
     properties: SoilTypeInfo = Field(
         ...,
         description="The queried soil type information",
+    )
+
+
+class SoilTypeSummaries(BaseModel):
+    summaries: List[SoilTypeSummary] = Field(
+        ..., description="The queried soil type summaries"
+    )
+
+
+class SoilTypeSummaryJSON(BaseModel):
+    type: FeatureType = Field(
+        description="The feature type of this geojson-object",
+        default=FeatureType.Feature,
+        example="Feature",
+    )
+    geometry: BoundingBoxGeometry = Field(
+        ...,
+        description="The geometry of the queried location",
+    )
+    properties: SoilTypeSummaries = Field(
+        ...,
+        description="The queried soil type summaries",
     )

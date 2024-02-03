@@ -5,6 +5,7 @@ from fastapi import Depends, Query
 from soil_api.config import settings
 from soil_api.models.soil import SoilPropertiesCodes, SoilPropertyValues
 from soil_api.utils.validation_helpers import (
+    validate_bbox,
     validate_coordinates,
     validate_depth,
     validate_depths,
@@ -117,3 +118,22 @@ ValueQueryDep = Annotated[List[str], Depends(value_dependency)]
 # DepthAndPropertyQueryDep = Annotated[
 #     DepthAndPropertyQuery, Depends(depth_and_property_query_dependency)
 # ]
+
+
+def bbox_query_dependency(
+    bbox: Annotated[
+        List[float],
+        Query(
+            title="bbox",
+            description="Bounding box coordinates (min lon, min lat, max lon, max lat)",
+            example=[9.58, 60.10, 9.60, 60.12],
+        ),
+    ],
+) -> List[float]:
+    # validate_coordinates(bbox[1], bbox[0])
+    # validate_coordinates(bbox[3], bbox[2])
+    validate_bbox(bbox)
+    return bbox
+
+
+BboxQueryDep = Annotated[List[float], Depends(bbox_query_dependency)]

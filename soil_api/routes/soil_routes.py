@@ -5,12 +5,14 @@ import time
 
 from fastapi import APIRouter
 
+from soil_api.utils.bbox_extraction import extract_bbox_from_raster
 from soil_api.utils.response_generator import generate_soil_layer
 
 logging.basicConfig(level=logging.INFO)
 
 from soil_api.config import settings
 from soil_api.dependencies.queryparams import (
+    BboxQueryDep,
     DepthQueryDep,
     LocationQueryDep,
     PropertyQueryDep,
@@ -18,6 +20,7 @@ from soil_api.dependencies.queryparams import (
     ValueQueryDep,
 )
 from soil_api.models.soil import (
+    BoundingBoxGeometry,
     GeometryType,
     PointGeometry,
     SoilLayerList,
@@ -26,6 +29,9 @@ from soil_api.models.soil import (
     SoilTypeJSON,
     SoilTypeProbability,
     SoilTypes,
+    SoilTypeSummaries,
+    SoilTypeSummary,
+    SoilTypeSummaryJSON,
 )
 from soil_api.utils.point_extraction import extract_point_from_raster
 
@@ -221,3 +227,56 @@ async def run_sequential(target_function, args_list):
     elapsed_time = end_time - start_time
     logging.info(f"Sequential execution time: {elapsed_time} seconds")
     return results
+
+
+@router.get(
+    "/type/summary",
+    summary="Get soil type summary for a given bounding box",
+    description="Returns the a summary of the soil types present in the given boux",
+    response_model_exclude_none=True,
+)
+async def get_soil_type_summary(bbox: BboxQueryDep) -> SoilTypeSummaryJSON:
+    wrb_soil_map = "wrb"
+    wrb_soil_map_fname = settings.soil_maps[wrb_soil_map]
+    wrb_soil_map_path = os.path.join(
+        settings.soil_maps_url, wrb_soil_map, wrb_soil_map_fname
+    )
+    types_counts = extract_bbox_from_raster(wrb_soil_map_path, bbox)
+
+    # map every key to the corresponding soil type
+    # soil_type_counts = {}
+    # for key, value in types_counts.items():
+    #     soil_type = SoilTypes.__members__.get(f"t{key}", SoilTypes.No_information)
+    #     soil_type_counts[soil_type.value] = value
+
+    # create a Polygon from the bounding box
+    polygon = [
+        [
+            [bbox[0], bbox[1]],
+            [bbox[2], bbox[1]],
+            [bbox[2], bbox[3]],
+            [bbox[0], bbox[3]],
+            [bbox[0], bbox[1]],
+        ]
+    ]
+
+    soil_type_summaries = SoilTypeSummaries(
+        summaries=[
+            SoilTypeSummary(
+                soil_type=SoilTypes.__members__.get(
+                    f"t{key}", SoilTypes.No_information
+                ),
+                count=count,
+            )
+            for key, count in sorted(
+                types_counts.items(), key=lambda x: x[1], reverse=True
+            )
+        ]
+    )
+
+    response = SoilTypeSummaryJSON(
+        properties=soil_type_summaries,
+        geometry=BoundingBoxGeometry(coordinates=polygon, type=GeometryType.Polygon),
+    )
+
+    return response
