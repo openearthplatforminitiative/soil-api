@@ -49,7 +49,7 @@ class Settings(BaseSettings):
         "60-100cm": {"top_depth": 60, "bottom_depth": 100, "unit_depth": "cm"},
         "100-200cm": {"top_depth": 100, "bottom_depth": 200, "unit_depth": "cm"},
     }
-    no_data_vals: list = [-32768, 65535]
+    no_data_vals: list = [-32768, 65535, -99999]
 
 
 settings = Settings()

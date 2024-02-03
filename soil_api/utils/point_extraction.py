@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from functools import partial
 
 import numpy as np
@@ -34,7 +35,7 @@ async def extract_point_from_raster(
 
         longitude = feature_proj["coordinates"][0]
         latitude = feature_proj["coordinates"][1]
-
+    logging.info(f"Extracting value from {raster_path} at {latitude}, {longitude}")
     loop = asyncio.get_running_loop()
     try:
         src = await loop.run_in_executor(None, rasterio.open, raster_path)
@@ -44,7 +45,7 @@ async def extract_point_from_raster(
         value = next(value_generator)[0]
         src.close()
     except rasterio.errors.RasterioIOError:
-        return -32768
+        return -99999
     return value
 
     # perform a try-except block to catch any exceptions

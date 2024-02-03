@@ -28,6 +28,20 @@ def location_query_dependency(
 LocationQueryDep = Annotated[LocationQuery, Depends(location_query_dependency)]
 
 
+def soil_type_count_dependency(
+    count: Annotated[
+        int,
+        Query(
+            title="count",
+            description="Number of most probable soil types to return",
+        ),
+    ] = 0,
+) -> int:
+    return count
+
+
+SoilTypeCountDep = Annotated[int, Depends(soil_type_count_dependency)]
+
 # def depth_and_property_query_dependency(
 #     properties: List[str] = Query(
 #         list(SoilPropertiesCodes.__members__),
@@ -52,11 +66,13 @@ LocationQueryDep = Annotated[LocationQuery, Depends(location_query_dependency)]
 
 
 def depth_dependency(
-    depths: List[str] = Query(
-        list(settings.depths.keys()),
-        title="depths to include",
-        description="List of depths to include in the query.",
-    ),
+    depths: Annotated[
+        List[str],
+        Query(
+            title="depths to include",
+            description="List of depths to include in the query.",
+        ),
+    ] = list(settings.depths.keys()),
 ) -> List[str]:
     validate_depths(depths)
     return depths
@@ -66,11 +82,13 @@ DepthQueryDep = Annotated[List[str], Depends(depth_dependency)]
 
 
 def property_dependency(
-    properties: List[str] = Query(
-        list(SoilPropertiesCodes.__members__),
-        title="properties to include",
-        description="List of soil properties to include in the query.",
-    ),
+    properties: Annotated[
+        List[str],
+        Query(
+            title="properties to include",
+            description="List of soil properties to include in the query.",
+        ),
+    ] = list(SoilPropertiesCodes.__members__),
 ) -> List[str]:
     validate_properties(properties)
     return properties
@@ -80,11 +98,13 @@ PropertyQueryDep = Annotated[List[str], Depends(property_dependency)]
 
 
 def value_dependency(
-    values: List[str] = Query(
-        list(SoilPropertyValues.__annotations__),
-        title="values to include",
-        description="List of values to include in the query.",
-    ),
+    values: Annotated[
+        List[str],
+        Query(
+            title="values to include",
+            description="List of values to include in the query.",
+        ),
+    ] = list(SoilPropertyValues.__annotations__),
 ) -> List[str]:
     validate_values(values)
     return values

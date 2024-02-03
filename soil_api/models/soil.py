@@ -82,9 +82,23 @@ class SoilTypes(Enum):
     No_information = "No information available."
 
 
-class SoilType(BaseModel):
+class SoilTypeProbability(BaseModel):
     soil_type: SoilTypes = Field(
         ..., description="The queried soil type", example="Acrisols"
+    )
+    probability: int = Field(
+        ...,
+        description="The probability of the queried soil type as an integer between 0 and 100",
+        example=70,
+    )
+
+
+class SoilTypeInfo(BaseModel):
+    soil_type: SoilTypes = Field(
+        ..., description="The queried soil type", example="Acrisols"
+    )
+    probabilities: List[SoilTypeProbability] | None = Field(
+        None, description="The queried soil type probabilities"
     )
 
 
@@ -243,7 +257,7 @@ class SoilTypeJSON(BaseModel):
         ...,
         description="The geometry of the queried location",
     )
-    properties: SoilType = Field(
+    properties: SoilTypeInfo = Field(
         ...,
         description="The queried soil type information",
     )
