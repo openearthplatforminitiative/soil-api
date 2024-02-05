@@ -5,7 +5,7 @@ from soil_api.models.soil import (
     SoilLayer,
     SoilPropertiesCodes,
     SoilPropertiesNames,
-    SoilPropertyUnits,
+    SoilPropertiesUnits,
     SoilPropertyValues,
 )
 
@@ -31,7 +31,7 @@ def generate_soil_layer(
     return SoilLayer(
         code=SoilPropertiesCodes.__members__[property],
         name=SoilPropertiesNames.__members__[property],
-        unit=SoilPropertyUnits.__members__[property],
+        unit=SoilPropertiesUnits.__members__[property],
         depths=soil_depths,
     )
 

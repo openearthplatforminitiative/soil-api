@@ -1,29 +1,14 @@
 from fastapi import HTTPException
 
 from soil_api.config import settings
-from soil_api.models.soil import SoilPropertiesCodes, SoilPropertyValues
+from soil_api.models.soil import SoilPropertiesCodes
 
 ISRIC_ROI = settings.isric_roi
 
 
-def validate_property(property: str) -> None:
-    """Validate the property parameter.
-
-    Parameters:
-    - property (str): The soil property to validate.
-
-    Returns:
-    None
-    """
-    if property not in SoilPropertiesCodes.__members__:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid property: {property}. Must be one of: {', '.join(SoilPropertiesCodes.__members__)}",
-        )
-
-
 def validate_properties(properties: list[str]) -> None:
-    """Validate the properties parameter.
+    """Validate the properties parameter. If any of the properties are
+    invalid, raise an HTTPException with status code 400.
 
     Parameters:
     - properties (list[str]): The soil properties to validate.
@@ -64,30 +49,9 @@ def validate_coordinates(latitude: float, longitude: float) -> None:
         )
 
 
-def validate_depth(depth: str, property: str) -> None:
-    """Validate the depth parameter.
-
-    Parameters:
-    - depth (str): The depth to validate.
-    - property (str): The soil property to validate.
-
-    Returns:
-    None
-    """
-    if property == "ocs" and depth != "0-30":
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid depth: '{depth}' for property 'ocs'. Must be '0-30'.",
-        )
-    elif property != "ocs" and depth not in list(settings.depths.keys):
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid depth: '{depth}' for property '{property}'. Must be one of: {', '.join(list(settings.depths.keys()))}",
-        )
-
-
 def validate_depths(depths: list[str]) -> None:
-    """Validate the depths parameter.
+    """Validate the depths parameter. If any of the depths are invalid,
+    raise an HTTPException with status code 400.
 
     Parameters:
     - depths (list[str]): The depths to validate.
@@ -104,7 +68,8 @@ def validate_depths(depths: list[str]) -> None:
 
 
 def validate_values(values: list[str]) -> None:
-    """Validate the values parameter.
+    """Validate the values parameter. If any of the values are invalid,
+    raise an HTTPException with status code 400.
 
     Parameters:
     - values (list[str]): The values to validate.
@@ -112,16 +77,18 @@ def validate_values(values: list[str]) -> None:
     Returns:
     None
     """
-    invalid_values = set(values) - set(SoilPropertyValues.__annotations__)
+    invalid_values = set(values) - set(settings.soil_property_value_types)
     if invalid_values:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid values: {', '.join(invalid_values)}. Must be one of: {', '.join(SoilPropertyValues.__annotations__)}",
+            detail=f"Invalid values: {', '.join(invalid_values)}. Must be one of: {', '.join(settings.soil_property_value_types)}",
         )
 
 
 def validate_bbox(bbox: list[float]) -> None:
-    """Validate the bbox parameter.
+    """Validate the bbox parameter. If the bbox is invalid, raise an
+    HTTPException with status code 400. If the bbox is outside the region
+    of interest, raise an HTTPException with status code 404.
 
     Parameters:
     - bbox (list[float]): The bounding box to validate.

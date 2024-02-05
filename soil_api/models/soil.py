@@ -15,40 +15,6 @@ class GeometryType(Enum):
     Polygon = "Polygon"
 
 
-# class SoilTypes(Enum):
-#     Acrisols = "Acrisols"
-#     Albeluvisols = "Albeluvisols"
-#     Alisols = "Alisols"
-#     Andosols = "Andosols"
-#     Arenosols = "Arenosols"
-#     Calcisols = "Calcisols"
-#     Cambisols = "Cambisols"
-#     Chernozems = "Chernozems"
-#     Cryosols = "Cryosols"
-#     Durisols = "Durisols"
-#     Ferralsols = "Ferralsols"
-#     Fluvisols = "Fluvisols"
-#     Gleysols = "Gleysols"
-#     Gypsisols = "Gypsisols"
-#     Histosols = "Histosols"
-#     Kastanozems = "Kastanozems"
-#     Leptosols = "Leptosols"
-#     Lixisols = "Lixisols"
-#     Luvisols = "Luvisols"
-#     Nitisols = "Nitisols"
-#     Phaeozems = "Phaeozems"
-#     Planosols = "Planosols"
-#     Plinthosols = "Plinthosols"
-#     Podzols = "Podzols"
-#     Regosols = "Regosols"
-#     Solonchaks = "Solonchaks"
-#     Solonetz = "Solonetz"
-#     Stagnosols = "Stagnosols"
-#     Umbrisols = "Umbrisols"
-#     Vertisols = "Vertisols"
-#     No_information = "No information available."
-
-
 class SoilTypes(Enum):
     t0 = "Acrisols"
     t1 = "Albeluvisols"
@@ -84,63 +50,63 @@ class SoilTypes(Enum):
 
 
 class SoilTypeProbability(BaseModel):
-    soil_type: SoilTypes = Field(
-        ..., description="The queried soil type", example="Acrisols"
-    )
+    soil_type: SoilTypes = Field(..., description="The soil type", example="Acrisols")
     probability: int = Field(
         ...,
-        description="The probability of the queried soil type as an integer between 0 and 100",
+        description="The probability of the soil type as an integer between 0 and 100",
         example=70,
     )
 
 
 class SoilTypeInfo(BaseModel):
-    soil_type: SoilTypes = Field(
-        ..., description="The queried soil type", example="Acrisols"
+    most_probable_soil_type: SoilTypes = Field(
+        ...,
+        description="The most probable soil type at the queried location",
+        example="Acrisols",
     )
     probabilities: List[SoilTypeProbability] | None = Field(
-        None, description="The queried soil type probabilities"
+        None, description="The soil type probabilities"
     )
 
 
 class SoilTypeSummary(BaseModel):
-    soil_type: SoilTypes = Field(
-        ..., description="The queried soil type", example="Acrisols"
-    )
+    soil_type: SoilTypes = Field(..., description="The soil type", example="Acrisols")
     count: int = Field(
-        ..., description="The count of the queried soil type", example=70
+        ...,
+        description="The number of occurrences of the soil type within the queried bounding box",
+        example=70,
     )
 
 
 class SoilPropertiesNames(Enum):
-    bdod = "Bulk density"  # cg/cm³
-    cec = "Cation exchange capacity (CEC pH 7)"  # mmol(c)/kg
-    cfvo = "Coarse fragments"  # cm³/dm³
-    clay = "Clay"  # g/kg
-    nitrogen = "Nitrogen"  # cg/kg
-    ocd = "Organic carbon density"  # hg/m³
-    ocs = "Organic carbon stocks"  # t/ha
-    phh2o = "pH water"  # pH*10
-    sand = "Sand"  # g/kg
-    silt = "Silt"  # g/kg
-    soc = "Soil organic carbon"  # dg/kg
+    bdod = "Bulk density"
+    cec = "Cation exchange capacity (CEC pH 7)"
+    cfvo = "Coarse fragments"
+    clay = "Clay"
+    nitrogen = "Nitrogen"
+    ocd = "Organic carbon density"
+    ocs = "Organic carbon stocks"
+    phh2o = "pH water"
+    sand = "Sand"
+    silt = "Silt"
+    soc = "Soil organic carbon"
 
 
 class SoilPropertiesCodes(Enum):
-    bdod = "bdod"  # cg/cm³
-    cec = "cec"  # mmol(c)/kg
-    cfvo = "cfvo"  # cm³/dm³
-    clay = "clay"  # g/kg
-    nitrogen = "nitrogen"  # cg/kg
-    ocd = "ocd"  # hg/m³
-    ocs = "ocs"  # t/ha
-    phh2o = "phh2o"  # pH*10
-    sand = "sand"  # g/kg
-    silt = "silt"  # g/kg
-    soc = "soc"  # dg/kg
+    bdod = "bdod"
+    cec = "cec"
+    cfvo = "cfvo"
+    clay = "clay"
+    nitrogen = "nitrogen"
+    ocd = "ocd"
+    ocs = "ocs"
+    phh2o = "phh2o"
+    sand = "sand"
+    silt = "silt"
+    soc = "soc"
 
 
-class SoilPropertyUnits(Enum):
+class SoilPropertiesUnits(Enum):
     bdod = "cg/cm³"
     cec = "mmol(c)/kg"
     cfvo = "cm³/dm³"
@@ -162,7 +128,7 @@ class SoilProperty(BaseModel):
         ..., description="The unit of the queried soil property", example="g/kg"
     )
     property: SoilPropertiesNames = Field(
-        ..., description="The queried soil property", example="Soil organic carbon"
+        ..., description="The name queried soil property", example="Soil organic carbon"
     )
 
 
@@ -182,14 +148,12 @@ class BoundingBoxGeometry(BaseModel):
         example=[
             [[60.5, 11.59], [60.6, 11.59], [60.6, 11.6], [60.5, 11.6], [60.5, 11.59]]
         ],
-        # min_items=5,
-        # max_items=5,
     )
     type: GeometryType
 
 
 class SoilLayerList(BaseModel):
-    layers: List[SoilLayer] = Field(..., description="The queried soil layers")
+    layers: List[SoilLayer] = Field(..., description="The queried soil property layers")
 
 
 class SoilLayer(BaseModel):
@@ -199,27 +163,38 @@ class SoilLayer(BaseModel):
     name: SoilPropertiesNames = Field(
         ..., description="The name of the soil property", example="Bulk density"
     )
-    unit: SoilPropertyUnits = Field(
-        ..., description="The unit of the queried soil property", example="g/kg"
+    unit: SoilPropertiesUnits = Field(
+        ..., description="The unit of the soil property", example="g/kg"
     )
-    depths: List[SoilDepth] = Field(..., description="The queried soil depths")
+    depths: List[SoilDepth] = Field(
+        ..., description="The queried soil depths with values"
+    )
 
 
 class SoilPropertyValues(BaseModel):
     mean: float | None = Field(
-        None, description="The mean value of the queried soil property", example=50
+        None, description="The mean value of the soil property", example=50
     )
     Q0_05: float | None = Field(
-        None, description="The 5th percentile of the queried soil property", example=40
+        None,
+        description="The 5th percentile of the soil property",
+        example=40,
+        alias="Q0.05",
     )
     Q0_5: float | None = Field(
-        None, description="The 50th percentile of the queried soil property", example=50
+        None,
+        description="The 50th percentile of the soil property",
+        example=50,
+        alias="Q0.5",
     )
     Q0_95: float | None = Field(
-        None, description="The 95th percentile of the queried soil property", example=60
+        None,
+        description="The 95th percentile of the soil property",
+        example=60,
+        alias="Q0.95",
     )
     uncertainty: float | None = Field(
-        None, description="The uncertainty of the queried soil property", example=5
+        None, description="The uncertainty of the soil property", example=5
     )
 
 
@@ -234,28 +209,24 @@ class SoilDepthLabels(Enum):
 
 
 class SoilDepth(BaseModel):
-    range: DepthRange = Field(..., description="The queried soil depth range")
-    label: SoilDepthLabels = Field(..., description="The queried soil depth label")
+    range: DepthRange = Field(..., description="The soil depth range")
+    label: SoilDepthLabels = Field(..., description="The soil depth label")
     values: SoilPropertyValues = Field(
         ..., description="The queried soil property values"
     )
 
 
 class DepthRange(BaseModel):
-    top_depth: int = Field(
-        ..., description="The top depth of the queried soil property", example=0
-    )
-    bottom_depth: int = Field(
-        ..., description="The bottom depth of the queried soil property", example=5
-    )
+    top_depth: int = Field(..., description="The top depth", example=0)
+    bottom_depth: int = Field(..., description="The bottom depth", example=5)
     unit_depth: str = Field(
-        ..., description="The unit of the queried soil property", example="cm"
+        ..., description="The unit of the depth range", example="cm"
     )
 
 
 class SoilPropertyJSON(BaseModel):
     type: FeatureType = Field(
-        description="The feature type of this geojson-object",
+        description="The feature type of the geojson-object",
         default=FeatureType.Feature,
         example="Feature",
     )
@@ -271,7 +242,7 @@ class SoilPropertyJSON(BaseModel):
 
 class SoilTypeJSON(BaseModel):
     type: FeatureType = Field(
-        description="The feature type of this geojson-object",
+        description="The feature type of the geojson-object",
         default=FeatureType.Feature,
         example="Feature",
     )
@@ -281,13 +252,13 @@ class SoilTypeJSON(BaseModel):
     )
     properties: SoilTypeInfo = Field(
         ...,
-        description="The queried soil type information",
+        description="The soil type information at the queried location",
     )
 
 
-class SoilTypeSummaries(BaseModel):
+class SoilTypeSummaryInfo(BaseModel):
     summaries: List[SoilTypeSummary] = Field(
-        ..., description="The queried soil type summaries"
+        ..., description="The soil type summaries within the queried bounding box"
     )
 
 
@@ -301,7 +272,7 @@ class SoilTypeSummaryJSON(BaseModel):
         ...,
         description="The geometry of the queried location",
     )
-    properties: SoilTypeSummaries = Field(
+    properties: SoilTypeSummaryInfo = Field(
         ...,
-        description="The queried soil type summaries",
+        description="The soil type summary information",
     )

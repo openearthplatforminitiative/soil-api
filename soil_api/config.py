@@ -49,7 +49,9 @@ class Settings(BaseSettings):
         "60-100cm": {"top_depth": 60, "bottom_depth": 100, "unit_depth": "cm"},
         "100-200cm": {"top_depth": 100, "bottom_depth": 200, "unit_depth": "cm"},
     }
-    no_data_vals: list = [-32768, 65535, -99999]
+    no_data_vals_soilgrids: list = [-32768, 65535]
+    no_data_val: int = -99999
+    soil_property_value_types: list = ["mean", "Q0.05", "Q0.5", "Q0.95", "uncertainty"]
 
 
 settings = Settings()

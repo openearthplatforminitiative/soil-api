@@ -3,18 +3,15 @@ from typing import Annotated, List
 from fastapi import Depends, Query
 
 from soil_api.config import settings
-from soil_api.models.soil import SoilPropertiesCodes, SoilPropertyValues
+from soil_api.models.soil import SoilPropertiesCodes
 from soil_api.utils.validation_helpers import (
     validate_bbox,
     validate_coordinates,
-    validate_depth,
     validate_depths,
     validate_properties,
-    validate_property,
     validate_values,
 )
 
-# Define a union type for the dependency
 LocationQuery = tuple[float, float]
 
 
@@ -30,40 +27,20 @@ LocationQueryDep = Annotated[LocationQuery, Depends(location_query_dependency)]
 
 
 def soil_type_count_dependency(
-    count: Annotated[
+    top_k: Annotated[
         int,
         Query(
-            title="count",
+            title="top_k",
             description="Number of most probable soil types to return",
+            ge=0,
+            le=30,
         ),
     ] = 0,
 ) -> int:
-    return count
+    return top_k
 
 
 SoilTypeCountDep = Annotated[int, Depends(soil_type_count_dependency)]
-
-# def depth_and_property_query_dependency(
-#     properties: List[str] = Query(
-#         list(SoilPropertiesCodes.__members__),
-#         title="properties to include",
-#         description="List of soil properties to include in the query.",
-#     ),
-#     depths: List[str] = Query(
-#         list(settings.depths.keys()),
-#         title="depths to include",
-#         description="List of depths to include in the query.",
-#     ),
-#     values: List[str] = Query(
-#         list(SoilPropertyValues.__annotations__),
-#         title="values to include",
-#         description="List of values to include in the query.",
-#     ),
-# ) -> tuple[str, str]:
-#     validate_properties(properties)
-#     validate_depths(depths)
-#     validate_values(values)
-#     return depths, properties, values
 
 
 def depth_dependency(
@@ -105,19 +82,13 @@ def value_dependency(
             title="values to include",
             description="List of values to include in the query.",
         ),
-    ] = list(SoilPropertyValues.__annotations__),
+    ] = settings.soil_property_value_types  # list(SoilPropertyValues.__annotations__),
 ) -> List[str]:
     validate_values(values)
     return values
 
 
 ValueQueryDep = Annotated[List[str], Depends(value_dependency)]
-
-
-# DepthAndPropertyQuery = tuple[List[str], List[str], List[str]]
-# DepthAndPropertyQueryDep = Annotated[
-#     DepthAndPropertyQuery, Depends(depth_and_property_query_dependency)
-# ]
 
 
 def bbox_query_dependency(
@@ -130,8 +101,6 @@ def bbox_query_dependency(
         ),
     ],
 ) -> List[float]:
-    # validate_coordinates(bbox[1], bbox[0])
-    # validate_coordinates(bbox[3], bbox[2])
     validate_bbox(bbox)
     return bbox
 
