@@ -21,3 +21,4 @@ const response = await fetch(
   const count2 = summaryList[1].count
   console.log(`Soil type: ${soilType1}, Count: ${count1}`);
   console.log(`Soil type: ${soilType2}, Count: ${count2}`);
+  
