@@ -27,7 +27,7 @@ def location_query_dependency(
 LocationQueryDep = Annotated[tuple[float, float], Depends(location_query_dependency)]
 
 
-def soil_type_count_dependency(
+def soil_type_top_k_dependency(
     top_k: Annotated[
         int,
         Query(
@@ -41,7 +41,7 @@ def soil_type_count_dependency(
     return top_k
 
 
-SoilTypeCountDep = Annotated[int, Depends(soil_type_count_dependency)]
+SoilTypeTopKDep = Annotated[int, Depends(soil_type_top_k_dependency)]
 
 
 def depth_dependency(

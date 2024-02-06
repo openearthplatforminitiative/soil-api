@@ -13,7 +13,7 @@ from soil_api.dependencies.queryparams import (
     DepthQueryDep,
     LocationQueryDep,
     PropertyQueryDep,
-    SoilTypeCountDep,
+    SoilTypeTopKDep,
     ValueQueryDep,
 )
 from soil_api.models.shared import BoundingBoxGeometry, GeometryType, PointGeometry
@@ -44,7 +44,7 @@ router = APIRouter(tags=["soil"])
     response_model_exclude_none=True,
 )
 async def get_soil_type(
-    location_query: LocationQueryDep, top_k: SoilTypeCountDep
+    location_query: LocationQueryDep, top_k: SoilTypeTopKDep
 ) -> SoilTypeJSON:
     # Define the path to the WRB soil map and extract the most probable
     # soil type at the given location
