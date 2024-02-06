@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
 from soil_api.config import settings
-from soil_api.models.soil import SoilPropertiesCodes
+from soil_api.models.soil_property import SoilDepthLabels, SoilPropertiesCodes
 
 ISRIC_ROI = settings.isric_roi
 
@@ -21,7 +21,10 @@ def validate_properties(properties: list[str]) -> None:
     if invalid_properties:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid properties: {', '.join(invalid_properties)}. Must be one of: {', '.join(SoilPropertiesCodes.__members__)}",
+            detail=(
+                f"Invalid properties: {', '.join(invalid_properties)}. "
+                f"Must be one of: {', '.join(SoilPropertiesCodes.__members__)}"
+            ),
         )
 
 
@@ -59,11 +62,15 @@ def validate_depths(depths: list[str]) -> None:
     Returns:
     None
     """
-    invalid_depths = set(depths) - set(settings.depths.keys())
+    all_depth_labels = [depth.value for depth in SoilDepthLabels]
+    invalid_depths = set(depths) - set(all_depth_labels)
     if invalid_depths:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid depths: {', '.join(invalid_depths)}. Must be one of: {', '.join(list(settings.depths.keys()))}",
+            detail=(
+                f"Invalid depths: {', '.join(invalid_depths)}. Must"
+                f" be one of: {', '.join(all_depth_labels)}"
+            ),
         )
 
 
@@ -81,7 +88,10 @@ def validate_values(values: list[str]) -> None:
     if invalid_values:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid values: {', '.join(invalid_values)}. Must be one of: {', '.join(settings.soil_property_value_types)}",
+            detail=(
+                f"Invalid values: {', '.join(invalid_values)}. Must "
+                f"be one of: {', '.join(settings.soil_property_value_types)}"
+            ),
         )
 
 
@@ -96,23 +106,11 @@ def validate_bbox(bbox: list[float]) -> None:
     Returns:
     None
     """
-    if len(bbox) != 4:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid bbox: {bbox}. Must be a list of 4 float values.",
-        )
     if bbox[0] > bbox[2] or bbox[1] > bbox[3]:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid bbox: {bbox}. The first two values must be the lower left corner and the last two values must be the upper right corner.",
-        )
-    if not (
-        ISRIC_ROI["min_lat"] <= bbox[1] <= ISRIC_ROI["max_lat"]
-        and ISRIC_ROI["min_lon"] <= bbox[0] <= ISRIC_ROI["max_lon"]
-        and ISRIC_ROI["min_lat"] <= bbox[3] <= ISRIC_ROI["max_lat"]
-        and ISRIC_ROI["min_lon"] <= bbox[2] <= ISRIC_ROI["max_lon"]
-    ):
-        raise HTTPException(
-            status_code=404,
-            detail="Queried bounding box is outside the region of interest",
+            detail=(
+                f"Invalid bbox: {bbox}. The first two values must be the lower "
+                "left corner and the last two values must be the upper right corner."
+            ),
         )

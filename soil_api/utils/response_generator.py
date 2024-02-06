@@ -1,12 +1,16 @@
-from soil_api.config import settings
-from soil_api.models.soil import (
+from soil_api.models.soil_property import (
     DepthRange,
     SoilDepth,
+    SoilDepthBottom,
+    SoilDepthLabels,
+    SoilDepthTop,
+    SoilDepthUnits,
     SoilLayer,
     SoilPropertiesCodes,
     SoilPropertiesNames,
     SoilPropertiesUnits,
     SoilPropertyValues,
+    get_soil_depth_from_label,
 )
 
 
@@ -24,9 +28,10 @@ def generate_soil_layer(
     """
     depths = list(soil_map_info.keys())
     soil_depths = []
-    for depth in depths:
-        values = soil_map_info[depth]
-        soil_depths.append(generate_soil_depth(values, depth, settings.depths[depth]))
+    for depth_label in depths:
+        values = soil_map_info[depth_label]
+        depth = get_soil_depth_from_label(depth_label)
+        soil_depths.append(generate_soil_depth(values, depth))
 
     return SoilLayer(
         code=SoilPropertiesCodes.__members__[property],
@@ -37,7 +42,8 @@ def generate_soil_layer(
 
 
 def generate_soil_depth(
-    values: dict[str, int], depth: str, depth_range: dict
+    values: dict[str, int],
+    depth: str,
 ) -> SoilDepth:
     """Generate a soil depth.
 
@@ -50,10 +56,14 @@ def generate_soil_depth(
     SoilDepth: The generated soil depth.
     """
     soil_prop_values = SoilPropertyValues(**values)
-    depth_range = DepthRange(**depth_range)
+    depth_range = DepthRange(
+        top_depth=SoilDepthTop.__members__[depth],
+        bottom_depth=SoilDepthBottom.__members__[depth],
+        unit_depth=SoilDepthUnits.__members__[depth],
+    )
 
     return SoilDepth(
         range=depth_range,
-        label=depth,
+        label=SoilDepthLabels.__members__[depth],
         values=soil_prop_values,
     )

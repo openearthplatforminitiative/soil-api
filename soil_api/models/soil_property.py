@@ -5,77 +5,7 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-
-class FeatureType(Enum):
-    Feature = "Feature"
-
-
-class GeometryType(Enum):
-    Point = "Point"
-    Polygon = "Polygon"
-
-
-class SoilTypes(Enum):
-    t0 = "Acrisols"
-    t1 = "Albeluvisols"
-    t2 = "Alisols"
-    t3 = "Andosols"
-    t4 = "Arenosols"
-    t5 = "Calcisols"
-    t6 = "Cambisols"
-    t7 = "Chernozems"
-    t8 = "Cryosols"
-    t9 = "Durisols"
-    t10 = "Ferralsols"
-    t11 = "Fluvisols"
-    t12 = "Gleysols"
-    t13 = "Gypsisols"
-    t14 = "Histosols"
-    t15 = "Kastanozems"
-    t16 = "Leptosols"
-    t17 = "Lixisols"
-    t18 = "Luvisols"
-    t19 = "Nitisols"
-    t20 = "Phaeozems"
-    t21 = "Planosols"
-    t22 = "Plinthosols"
-    t23 = "Podzols"
-    t24 = "Regosols"
-    t25 = "Solonchaks"
-    t26 = "Solonetz"
-    t27 = "Stagnosols"
-    t28 = "Umbrisols"
-    t29 = "Vertisols"
-    No_information = "No information available"
-
-
-class SoilTypeProbability(BaseModel):
-    soil_type: SoilTypes = Field(..., description="The soil type", example="Acrisols")
-    probability: int = Field(
-        ...,
-        description="The probability of the soil type as an integer between 0 and 100",
-        example=70,
-    )
-
-
-class SoilTypeInfo(BaseModel):
-    most_probable_soil_type: SoilTypes = Field(
-        ...,
-        description="The most probable soil type at the queried location",
-        example="Acrisols",
-    )
-    probabilities: List[SoilTypeProbability] | None = Field(
-        None, description="The soil type probabilities"
-    )
-
-
-class SoilTypeSummary(BaseModel):
-    soil_type: SoilTypes = Field(..., description="The soil type", example="Acrisols")
-    count: int = Field(
-        ...,
-        description="The number of occurrences of the soil type within the queried bounding box",
-        example=70,
-    )
+from soil_api.models.shared import FeatureType, PointGeometry
 
 
 class SoilPropertiesNames(Enum):
@@ -132,26 +62,6 @@ class SoilProperty(BaseModel):
     )
 
 
-class PointGeometry(BaseModel):
-    coordinates: List[float] = Field(
-        description="[longitude, latitude] decimal coordinates",
-        example=[60.5, 11.59],
-        min_items=2,
-        max_items=2,
-    )
-    type: GeometryType
-
-
-class BoundingBoxGeometry(BaseModel):
-    coordinates: List[List[List[float]]] = Field(
-        description="[[[min_lon, min_lat], [max_lon, min_lat], [max_lon, max_lat], [min_lon, max_lat], [min_lon, min_lat]]]",
-        example=[
-            [[60.5, 11.59], [60.6, 11.59], [60.6, 11.6], [60.5, 11.6], [60.5, 11.59]]
-        ],
-    )
-    type: GeometryType
-
-
 class SoilLayerList(BaseModel):
     layers: List[SoilLayer] = Field(..., description="The queried soil property layers")
 
@@ -200,12 +110,56 @@ class SoilPropertyValues(BaseModel):
 
 class SoilDepthLabels(Enum):
     depth_0_5 = "0-5cm"
+    depth_0_30 = "0-30cm"
     depth_5_15 = "5-15cm"
     depth_15_30 = "15-30cm"
     depth_30_60 = "30-60cm"
     depth_60_100 = "60-100cm"
     depth_100_200 = "100-200cm"
-    depth_0_30 = "0-30cm"
+
+
+# Create a reverse lookup dictionary
+REVERSE_DEPTH_LOOKUP = {
+    v.value: k for k, v in list(SoilDepthLabels.__members__.items())
+}
+
+
+# Function to get the enum member using the reverse lookup
+def get_soil_depth_from_label(depth_string: str) -> SoilDepthLabels:
+    try:
+        return REVERSE_DEPTH_LOOKUP[depth_string]
+    except KeyError:
+        raise ValueError(f"No soil depth label found for '{depth_string}'")
+
+
+class SoilDepthTop(Enum):
+    depth_0_5 = 0
+    depth_0_30 = 0
+    depth_5_15 = 5
+    depth_15_30 = 15
+    depth_30_60 = 30
+    depth_60_100 = 60
+    depth_100_200 = 100
+
+
+class SoilDepthBottom(Enum):
+    depth_0_5 = 5
+    depth_0_30 = 30
+    depth_5_15 = 15
+    depth_15_30 = 30
+    depth_30_60 = 60
+    depth_60_100 = 100
+    depth_100_200 = 200
+
+
+class SoilDepthUnits(Enum):
+    depth_0_5 = "cm"
+    depth_0_30 = "cm"
+    depth_5_15 = "cm"
+    depth_15_30 = "cm"
+    depth_30_60 = "cm"
+    depth_60_100 = "cm"
+    depth_100_200 = "cm"
 
 
 class SoilDepth(BaseModel):
@@ -217,9 +171,11 @@ class SoilDepth(BaseModel):
 
 
 class DepthRange(BaseModel):
-    top_depth: int = Field(..., description="The top depth", example=0)
-    bottom_depth: int = Field(..., description="The bottom depth", example=5)
-    unit_depth: str = Field(
+    top_depth: SoilDepthTop = Field(..., description="The top depth", example=0)
+    bottom_depth: SoilDepthBottom = Field(
+        ..., description="The bottom depth", example=5
+    )
+    unit_depth: SoilDepthUnits = Field(
         ..., description="The unit of the depth range", example="cm"
     )
 
@@ -237,42 +193,4 @@ class SoilPropertyJSON(BaseModel):
     properties: SoilLayerList = Field(
         ...,
         description="The queried soil property information",
-    )
-
-
-class SoilTypeJSON(BaseModel):
-    type: FeatureType = Field(
-        description="The feature type of the geojson-object",
-        default=FeatureType.Feature,
-        example="Feature",
-    )
-    geometry: PointGeometry = Field(
-        ...,
-        description="The geometry of the queried location",
-    )
-    properties: SoilTypeInfo = Field(
-        ...,
-        description="The soil type information at the queried location",
-    )
-
-
-class SoilTypeSummaryInfo(BaseModel):
-    summaries: List[SoilTypeSummary] = Field(
-        ..., description="The soil type summaries within the queried bounding box"
-    )
-
-
-class SoilTypeSummaryJSON(BaseModel):
-    type: FeatureType = Field(
-        description="The feature type of this geojson-object",
-        default=FeatureType.Feature,
-        example="Feature",
-    )
-    geometry: BoundingBoxGeometry = Field(
-        ...,
-        description="The geometry of the queried location",
-    )
-    properties: SoilTypeSummaryInfo = Field(
-        ...,
-        description="The soil type summary information",
     )

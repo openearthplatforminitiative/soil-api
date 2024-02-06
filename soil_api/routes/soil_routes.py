@@ -3,12 +3,9 @@ import logging
 import os
 import time
 
-from fastapi import APIRouter
-
-from soil_api.utils.bbox_extraction import extract_bbox_from_raster
-from soil_api.utils.response_generator import generate_soil_layer
-
 logging.basicConfig(level=logging.INFO)
+
+from fastapi import APIRouter
 
 from soil_api.config import settings
 from soil_api.dependencies.queryparams import (
@@ -19,12 +16,9 @@ from soil_api.dependencies.queryparams import (
     SoilTypeCountDep,
     ValueQueryDep,
 )
-from soil_api.models.soil import (
-    BoundingBoxGeometry,
-    GeometryType,
-    PointGeometry,
-    SoilLayerList,
-    SoilPropertyJSON,
+from soil_api.models.shared import BoundingBoxGeometry, GeometryType, PointGeometry
+from soil_api.models.soil_property import SoilLayerList, SoilPropertyJSON
+from soil_api.models.soil_type import (
     SoilTypeInfo,
     SoilTypeJSON,
     SoilTypeProbability,
@@ -33,10 +27,12 @@ from soil_api.models.soil import (
     SoilTypeSummaryInfo,
     SoilTypeSummaryJSON,
 )
+from soil_api.utils.bbox_extraction import extract_bbox_from_raster
 from soil_api.utils.point_extraction import (
     extract_point_from_raster,
     transfrom_coordinates_to_homolosine_crs,
 )
+from soil_api.utils.response_generator import generate_soil_layer
 
 router = APIRouter(tags=["soil"])
 
@@ -44,7 +40,7 @@ router = APIRouter(tags=["soil"])
 @router.get(
     "/type",
     summary="Get soil type",
-    description="Returns the soil type for the given location",
+    description="Returns the most probable soil type for the given location",
     response_model_exclude_none=True,
 )
 async def get_soil_type(
@@ -71,7 +67,8 @@ async def get_soil_type(
     # for the most probable soil type and the top k-1 most probable soil types
     # If the most probable soil type is No_information, this step is skipped
     # If top_k is 1, only the raster for the most probable soil type is queried
-    # If top_k is > 1, the rasters for all soil types are queried
+    # If top_k is > 1, the rasters for all soil types are queried because
+    # all probabilities are needed to find the top_k most probable soil types
     additional_soil_types = []
     additional_soil_maps = []
     if most_probable_soil_type != SoilTypes.No_information.value:
@@ -148,7 +145,13 @@ async def get_soil_type(
 @router.get(
     "/property",
     summary="Get soil property",
-    description="Returns the soil property for the given location",
+    description=(
+        "Returns the values of the soil properties for the given "
+        "location and depths. "
+        "Note: The ocs property is only available for the 0-30cm "
+        "depth and vice versa. If the depth and property are "
+        "incompatible, the response will not include the property."
+    ),
     response_model_exclude_none=True,
 )
 async def get_soil_property(
@@ -201,23 +204,28 @@ async def get_soil_property(
     for property, depth, value_type, value in zip(
         all_properties, all_depths, all_value_types, values
     ):
-        # If the property is not in the dictionary, add it
-        if property not in soil_map_info:
-            soil_map_info[property] = {}
         # If the value is a no data value, skip it
         if (
             value not in settings.no_data_vals_soilgrids
             and value != settings.no_data_val
         ):
+            # If the property is not in the dictionary, add it
+            if property not in soil_map_info:
+                soil_map_info[property] = {}
             # If the depth is not in the dictionary, add it
             if depth not in soil_map_info[property]:
                 soil_map_info[property][depth] = {}
             soil_map_info[property][depth][value_type] = value
 
-    # Create a list of SoilLayer objects and fill them using the soil_map_info dictionary
+    # Create a list of SoilLayer objects and fill them using
+    # the soil_map_info dictionary. Skip the properties that
+    # are not in the dictionary (i.e., the ones with all no data values)
     all_soil_layers = []
     for property in properties:
-        all_soil_layers.append(generate_soil_layer(property, soil_map_info[property]))
+        if property in soil_map_info:
+            all_soil_layers.append(
+                generate_soil_layer(property, soil_map_info[property])
+            )
 
     soil_layer_list = SoilLayerList(
         layers=all_soil_layers,
@@ -231,34 +239,14 @@ async def get_soil_property(
     return response
 
 
-async def run_parallel(target_function, args_list):
-    start_time = time.time()  # Record start time
-    logging.info(f"Running parallel extraction for {len(args_list)} rasters")
-    tasks = [target_function(*args) for args in args_list]
-    results = await asyncio.gather(*tasks)
-    end_time = time.time()  # Record end time
-    elapsed_time = end_time - start_time
-    logging.info(f"Parallel execution time: {elapsed_time} seconds")
-    return results
-
-
-async def run_sequential(target_function, args_list):
-    start_time = time.time()  # Record start time
-    logging.info(f"Running sequential extraction for {len(args_list)} rasters")
-    results = []
-    for args in args_list:
-        value = await target_function(*args)
-        results.append(value)
-    end_time = time.time()  # Record end time
-    elapsed_time = end_time - start_time
-    logging.info(f"Sequential execution time: {elapsed_time} seconds")
-    return results
-
-
 @router.get(
     "/type/summary",
-    summary="Get soil type summary for a given bounding box",
-    description="Returns the a summary of the soil types present in the given boux",
+    summary="Get soil type summary",
+    description=(
+        "Returns the a summary of the soil types present in the "
+        "given bounding box, represented by a mapping of each soil "
+        "type to the number of occurrences in the bounding box"
+    ),
     response_model_exclude_none=True,
 )
 async def get_soil_type_summary(bbox: BboxQueryDep) -> SoilTypeSummaryJSON:
@@ -299,3 +287,28 @@ async def get_soil_type_summary(bbox: BboxQueryDep) -> SoilTypeSummaryJSON:
     )
 
     return response
+
+
+async def run_parallel(target_function: callable, args_list: list) -> list:
+    start_time = time.time()
+    logging.info(f"Running parallel extraction for {len(args_list)} rasters")
+    tasks = [target_function(*args) for args in args_list]
+    results = await asyncio.gather(*tasks)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    logging.info(f"Parallel execution time: {elapsed_time} seconds")
+    return results
+
+
+# Just to see the difference between sequential and parallel execution
+async def run_sequential(target_function: callable, args_list: list) -> list:
+    start_time = time.time()
+    logging.info(f"Running sequential extraction for {len(args_list)} rasters")
+    results = []
+    for args in args_list:
+        value = await target_function(*args)
+        results.append(value)
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    logging.info(f"Sequential execution time: {elapsed_time} seconds")
+    return results

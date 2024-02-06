@@ -3,27 +3,28 @@ from typing import Annotated, List
 from fastapi import Depends, Query
 
 from soil_api.config import settings
-from soil_api.models.soil import SoilPropertiesCodes
+from soil_api.models.soil_property import SoilDepthLabels, SoilPropertiesCodes
 from soil_api.utils.validation_helpers import (
     validate_bbox,
-    validate_coordinates,
     validate_depths,
     validate_properties,
     validate_values,
 )
 
-LocationQuery = tuple[float, float]
-
 
 def location_query_dependency(
-    lon: Annotated[float, Query(title="lon", description="Longitude", example=9.58)],
-    lat: Annotated[float, Query(title="lat", description="Latitude", example=60.10)],
-) -> LocationQuery:
-    validate_coordinates(latitude=lat, longitude=lon)
+    lon: Annotated[
+        float,
+        Query(title="lon", description="Longitude", example=9.58, ge=-180, le=180),
+    ],
+    lat: Annotated[
+        float, Query(title="lat", description="Latitude", example=60.10, ge=-90, le=90)
+    ],
+) -> tuple[float, float]:
     return lat, lon
 
 
-LocationQueryDep = Annotated[LocationQuery, Depends(location_query_dependency)]
+LocationQueryDep = Annotated[tuple[float, float], Depends(location_query_dependency)]
 
 
 def soil_type_count_dependency(
@@ -31,7 +32,7 @@ def soil_type_count_dependency(
         int,
         Query(
             title="top_k",
-            description="Number of most probable soil types to return",
+            description="Number of most probable soil types that will be returned, sorted by probability in descending order",
             ge=0,
             le=30,
         ),
@@ -50,7 +51,7 @@ def depth_dependency(
             title="depths to include",
             description="List of depths to include in the query.",
         ),
-    ] = list(settings.depths.keys()),
+    ] = list(SoilDepthLabels.__members__.values()),
 ) -> List[str]:
     validate_depths(depths)
     return depths
@@ -82,7 +83,7 @@ def value_dependency(
             title="values to include",
             description="List of values to include in the query.",
         ),
-    ] = settings.soil_property_value_types  # list(SoilPropertyValues.__annotations__),
+    ] = settings.soil_property_value_types
 ) -> List[str]:
     validate_values(values)
     return values
@@ -92,15 +93,48 @@ ValueQueryDep = Annotated[List[str], Depends(value_dependency)]
 
 
 def bbox_query_dependency(
-    bbox: Annotated[
-        List[float],
+    min_lon: Annotated[
+        float,
         Query(
-            title="bbox",
-            description="Bounding box coordinates (min lon, min lat, max lon, max lat)",
-            example=[9.58, 60.10, 9.60, 60.12],
+            title="min_lon",
+            description="Minimum longitude",
+            example=9.58,
+            ge=-180,
+            le=180,
+        ),
+    ],
+    max_lon: Annotated[
+        float,
+        Query(
+            title="max_lon",
+            description="Maximum longitude",
+            example=9.60,
+            ge=-180,
+            le=180,
+        ),
+    ],
+    min_lat: Annotated[
+        float,
+        Query(
+            title="min_lat",
+            description="Minimum latitude",
+            example=60.10,
+            ge=-90,
+            le=90,
+        ),
+    ],
+    max_lat: Annotated[
+        float,
+        Query(
+            title="max_lat",
+            description="Maximum latitude",
+            example=60.12,
+            ge=-90,
+            le=90,
         ),
     ],
 ) -> List[float]:
+    bbox = [min_lon, min_lat, max_lon, max_lat]
     validate_bbox(bbox)
     return bbox
 

@@ -40,15 +40,6 @@ class Settings(BaseSettings):
         "min_lon": -180.0,
         "max_lon": 180,
     }
-    depths: dict = {
-        "0-5cm": {"top_depth": 0, "bottom_depth": 5, "unit_depth": "cm"},
-        "0-30cm": {"top_depth": 0, "bottom_depth": 30, "unit_depth": "cm"},
-        "5-15cm": {"top_depth": 5, "bottom_depth": 15, "unit_depth": "cm"},
-        "15-30cm": {"top_depth": 15, "bottom_depth": 30, "unit_depth": "cm"},
-        "30-60cm": {"top_depth": 30, "bottom_depth": 60, "unit_depth": "cm"},
-        "60-100cm": {"top_depth": 60, "bottom_depth": 100, "unit_depth": "cm"},
-        "100-200cm": {"top_depth": 100, "bottom_depth": 200, "unit_depth": "cm"},
-    }
     no_data_vals_soilgrids: list = [-32768, 65535]
     no_data_val: int = -99999
     soil_property_value_types: list = ["mean", "Q0.05", "Q0.5", "Q0.95", "uncertainty"]

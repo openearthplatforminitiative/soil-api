@@ -1,5 +1,4 @@
 import asyncio
-import logging
 from functools import partial
 
 import rasterio
@@ -47,7 +46,6 @@ async def extract_point_from_raster(
     """
     if raster_path is None:
         return settings.no_data_val
-    logging.info(f"Extracting value from {raster_path} at {latitude}, {longitude}")
     loop = asyncio.get_running_loop()
     try:
         src = await loop.run_in_executor(None, rasterio.open, raster_path)

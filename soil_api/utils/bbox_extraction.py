@@ -1,5 +1,6 @@
 import numpy as np
 import rasterio
+from fastapi import HTTPException
 from rasterio.windows import from_bounds
 
 
@@ -16,12 +17,19 @@ def extract_bbox_from_raster(raster_path: str, bbox: list[float]) -> dict:
     dict: A dictionary with the unique elements as keys and
         their counts as values.
     """
-    with rasterio.open(raster_path) as src:
-        # Get the window corresponding to the bounding box
-        window = from_bounds(*bbox, transform=src.transform)
-        # Read the data within the specified window
-        data = src.read(window=window)
-        # Use numpy.unique to get unique elements and their counts
-        unique_elements, element_counts = np.unique(data, return_counts=True)
-        element_counts_dict = dict(zip(unique_elements, element_counts))
-        return element_counts_dict
+    try:
+        with rasterio.open(raster_path) as src:
+            # Get the window corresponding to the bounding box
+            window = from_bounds(*bbox, transform=src.transform)
+            # Read the data within the specified window
+            data = src.read(window=window)
+            # Use numpy.unique to get unique elements and their counts
+            unique_elements, element_counts = np.unique(data, return_counts=True)
+            element_counts_dict = dict(zip(unique_elements, element_counts))
+            return element_counts_dict
+    except rasterio.errors.RasterioIOError as e:
+        # return HTTP exception
+        raise HTTPException(
+            status_code=404,
+            detail=f"Error reading raster file: {raster_path}. Due to: {str(e)}",
+        )
