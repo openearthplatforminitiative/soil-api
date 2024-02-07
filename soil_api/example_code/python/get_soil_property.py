@@ -3,7 +3,7 @@ from httpx import Client
 with Client() as client:
     # Get the mean value of the soil property at the queried location and depth
     response = client.get(
-        url="http://127.0.0.1:8000/property",
+        url="$endpoint_url",
         params={
             "lat": 60.1,
             "lon": 9.58,
@@ -32,7 +32,7 @@ with Client() as client:
 
     # Get the mean and the 0.05 quantile of the soil properties at the queried location and depths
     response_multi = client.get(
-        url="http://127.0.0.1:8000/property",
+        url="$endpoint_url",
         params={
             "lat": 60.1,
             "lon": 9.58,
