@@ -16,7 +16,12 @@ from soil_api.dependencies.queryparams import (
     SoilTypeTopKDep,
     ValueQueryDep,
 )
-from soil_api.models.shared import BoundingBoxGeometry, GeometryType, PointGeometry
+from soil_api.models.shared import (
+    BoundingBoxGeometry,
+    FeatureType,
+    GeometryType,
+    PointGeometry,
+)
 from soil_api.models.soil_property import SoilLayerList, SoilPropertyJSON
 from soil_api.models.soil_type import (
     SoilTypeInfo,
@@ -136,6 +141,7 @@ async def get_soil_type(
     )
 
     response = SoilTypeJSON(
+        type=FeatureType.Feature,
         properties=soil_type_info,
         geometry=PointGeometry(coordinates=[lon, lat], type=GeometryType.Point),
     )
@@ -152,7 +158,7 @@ async def get_soil_type(
         "depth and vice versa. If the depth and property are "
         "incompatible, the response will not include the property."
     ),
-    response_model_exclude_none=True,
+    response_model_exclude_unset=True,
 )
 async def get_soil_property(
     location: LocationQueryDep,
@@ -205,16 +211,17 @@ async def get_soil_property(
         all_properties, all_depths, all_value_types, values
     ):
         # If the value is a no data value, skip it
-        if (
-            value not in settings.no_data_vals_soilgrids
-            and value != settings.no_data_val
-        ):
+        if value != settings.no_data_val:
             # If the property is not in the dictionary, add it
             if property not in soil_map_info:
                 soil_map_info[property] = {}
             # If the depth is not in the dictionary, add it
             if depth not in soil_map_info[property]:
                 soil_map_info[property][depth] = {}
+            # If the value is a soilgrids no data value, set it to None
+            # A soilgrids no data value often represents a body of water
+            if value in settings.no_data_vals_soilgrids:
+                value = None
             soil_map_info[property][depth][value_type] = value
 
     # Create a list of SoilLayer objects and fill them using
@@ -231,6 +238,7 @@ async def get_soil_property(
         layers=all_soil_layers,
     )
     response = SoilPropertyJSON(
+        type=FeatureType.Feature,
         properties=soil_layer_list,
         geometry=PointGeometry(
             coordinates=[input_lon, input_lat], type=GeometryType.Point
@@ -282,6 +290,7 @@ async def get_soil_type_summary(bbox: BboxQueryDep) -> SoilTypeSummaryJSON:
 
     soil_type_summaries = SoilTypeSummaryInfo(summaries=summaries)
     response = SoilTypeSummaryJSON(
+        type=FeatureType.Feature,
         properties=soil_type_summaries,
         geometry=BoundingBoxGeometry(coordinates=polygon, type=GeometryType.Polygon),
     )

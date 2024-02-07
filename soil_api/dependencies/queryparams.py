@@ -35,6 +35,7 @@ def soil_type_top_k_dependency(
             description="Number of most probable soil types that will be returned, sorted by probability in descending order",
             ge=0,
             le=30,
+            example=0,
         ),
     ] = 0,
 ) -> int:

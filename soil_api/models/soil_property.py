@@ -36,7 +36,7 @@ class SoilPropertiesCodes(Enum):
     soc = "soc"
 
 
-class SoilPropertiesUnits(Enum):
+class SoilPropertiesMappedUnits(Enum):
     bdod = "cg/cm³"
     cec = "mmol(c)/kg"
     cfvo = "cm³/dm³"
@@ -50,20 +50,51 @@ class SoilPropertiesUnits(Enum):
     soc = "dg/kg"
 
 
-class SoilProperty(BaseModel):
-    value: int | str = Field(
-        ..., description="The value of the queried soil property", example=50
-    )
-    unit: str = Field(
-        ..., description="The unit of the queried soil property", example="g/kg"
-    )
-    property: SoilPropertiesNames = Field(
-        ..., description="The name queried soil property", example="Soil organic carbon"
-    )
+class SoilPropertiesTargetUnits(Enum):
+    bdod = "kg/dm³"
+    cec = "cmol(c)/kg"
+    cfvo = "cm³/100cm³"
+    clay = "%"
+    nitrogen = "g/kg"
+    ocd = "hg/m³"
+    ocs = "kg/m²"
+    phh2o = "pH"
+    sand = "%"
+    silt = "%"
+    soc = "g/kg"
+
+
+class SoilPropertiesConversionFactors(Enum):
+    bdod = 100
+    cec = 10
+    cfvo = 10
+    clay = 10
+    nitrogen = 100
+    ocd = 10
+    ocs = 10
+    phh2o = 10
+    sand = 10
+    silt = 10
+    soc = 10
 
 
 class SoilLayerList(BaseModel):
     layers: List[SoilLayer] = Field(..., description="The queried soil property layers")
+
+
+class SoilPropertyUnit(BaseModel):
+    d_factor: SoilPropertiesConversionFactors = Field(
+        ..., description="The conversion factor", example=10
+    )
+    mapped_units: SoilPropertiesMappedUnits = Field(
+        ..., description="The mapped unit of the soil property", example="cm³/dm³"
+    )
+    target_units: SoilPropertiesTargetUnits = Field(
+        ..., description="The target unit of the soil property", example="m³/ha"
+    )
+    uncertainty_unit: str = Field(
+        ..., description="The unit of the uncertainty", example=""
+    )
 
 
 class SoilLayer(BaseModel):
@@ -73,8 +104,8 @@ class SoilLayer(BaseModel):
     name: SoilPropertiesNames = Field(
         ..., description="The name of the soil property", example="Bulk density"
     )
-    unit: SoilPropertiesUnits = Field(
-        ..., description="The unit of the soil property", example="g/kg"
+    unit_measure: SoilPropertyUnit = Field(
+        ..., description="The unit of the soil property"
     )
     depths: List[SoilDepth] = Field(
         ..., description="The queried soil depths with values"
@@ -183,8 +214,6 @@ class DepthRange(BaseModel):
 class SoilPropertyJSON(BaseModel):
     type: FeatureType = Field(
         description="The feature type of the geojson-object",
-        default=FeatureType.Feature,
-        example="Feature",
     )
     geometry: PointGeometry = Field(
         ...,

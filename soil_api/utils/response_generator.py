@@ -7,8 +7,11 @@ from soil_api.models.soil_property import (
     SoilDepthUnits,
     SoilLayer,
     SoilPropertiesCodes,
+    SoilPropertiesConversionFactors,
+    SoilPropertiesMappedUnits,
     SoilPropertiesNames,
-    SoilPropertiesUnits,
+    SoilPropertiesTargetUnits,
+    SoilPropertyUnit,
     SoilPropertyValues,
     get_soil_depth_from_label,
 )
@@ -33,10 +36,17 @@ def generate_soil_layer(
         depth = get_soil_depth_from_label(depth_label)
         soil_depths.append(generate_soil_depth(values, depth))
 
+    unit_measure = SoilPropertyUnit(
+        d_factor=SoilPropertiesConversionFactors.__members__[property],
+        mapped_units=SoilPropertiesMappedUnits.__members__[property],
+        target_units=SoilPropertiesTargetUnits.__members__[property],
+        uncertainty_unit="",
+    )
+
     return SoilLayer(
         code=SoilPropertiesCodes.__members__[property],
         name=SoilPropertiesNames.__members__[property],
-        unit=SoilPropertiesUnits.__members__[property],
+        unit_measure=unit_measure,
         depths=soil_depths,
     )
 

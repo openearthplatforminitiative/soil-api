@@ -74,8 +74,6 @@ class SoilTypeSummary(BaseModel):
 class SoilTypeJSON(BaseModel):
     type: FeatureType = Field(
         description="The feature type of the geojson-object",
-        default=FeatureType.Feature,
-        example="Feature",
     )
     geometry: PointGeometry = Field(
         ...,
@@ -96,8 +94,6 @@ class SoilTypeSummaryInfo(BaseModel):
 class SoilTypeSummaryJSON(BaseModel):
     type: FeatureType = Field(
         description="The feature type of this geojson-object",
-        default=FeatureType.Feature,
-        example="Feature",
     )
     geometry: BoundingBoxGeometry = Field(
         ...,
