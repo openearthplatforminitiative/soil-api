@@ -2,10 +2,10 @@
 // by a mapping of each soil type to the number of occurrences in the bounding box
 const response = await fetch(
   "$endpoint_url?" + new URLSearchParams({
-        min_lon: "9.5",
-        max_lon: "9.6",
-        min_lat: "60.1",
-        max_lat: "60.12",
+    min_lon: "9.5",
+    max_lon: "9.6",
+    min_lat: "60.1",
+    max_lat: "60.12",
   })
 );
 const json = await response.json();

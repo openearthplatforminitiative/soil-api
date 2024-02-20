@@ -1,11 +1,11 @@
 // Get the mean value of the soil property at the queried location and depth
 const response = await fetch(
   "$endpoint_url?" + new URLSearchParams({
-        lon: "9.58", 
-        lat: "60.1",
-        depths: "0-5cm",
-        properties: "bdod",
-        values: "mean"
+    lon: "9.58",
+    lat: "60.1",
+    depths: "0-5cm",
+    properties: "bdod",
+    values: "mean"
   })
 );
 const json = await response.json();
@@ -26,11 +26,11 @@ console.log(`Soil property: ${bdodName}, Depth: ${bdodDepth}, Value: ${bdodValue
 // Get the mean and the 0.05 quantile of the soil properties at the queried location and depths
 const response_multi = await fetch(
   "$endpoint_url?" + new URLSearchParams({
-        lon: "9.58", 
-        lat: "60.1",
-        depths: ['0-5cm', '100-200cm'],
-        properties: ['bdod', 'phh2o'],
-        values: ['mean', 'Q0.05']
+    lon: "9.58",
+    lat: "60.1",
+    depths: ['0-5cm', '100-200cm'],
+    properties: ['bdod', 'phh2o'],
+    values: ['mean', 'Q0.05']
   })
 );
 const json_multi = await response_multi.json();

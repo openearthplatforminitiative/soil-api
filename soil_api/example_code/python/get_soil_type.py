@@ -14,7 +14,7 @@ with Client() as client:
 
     print(f"Most probable soil type: {most_probable_soil_type}")
 
-    # Get the soil type at the queried location
+    # Get the most probable soil type at the queried location
     # and the probability of the top 3 most probable soil types
     response = client.get(
         url="$endpoint_url",
