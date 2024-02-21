@@ -3,43 +3,43 @@ from __future__ import annotations
 from enum import Enum
 from typing import List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_serializer
 
 from soil_api.models.shared import BoundingBoxGeometry, FeatureType, PointGeometry
 
 
 class SoilTypes(Enum):
-    t0 = "Acrisols"
-    t1 = "Albeluvisols"
-    t2 = "Alisols"
-    t3 = "Andosols"
-    t4 = "Arenosols"
-    t5 = "Calcisols"
-    t6 = "Cambisols"
-    t7 = "Chernozems"
-    t8 = "Cryosols"
-    t9 = "Durisols"
-    t10 = "Ferralsols"
-    t11 = "Fluvisols"
-    t12 = "Gleysols"
-    t13 = "Gypsisols"
-    t14 = "Histosols"
-    t15 = "Kastanozems"
-    t16 = "Leptosols"
-    t17 = "Lixisols"
-    t18 = "Luvisols"
-    t19 = "Nitisols"
-    t20 = "Phaeozems"
-    t21 = "Planosols"
-    t22 = "Plinthosols"
-    t23 = "Podzols"
-    t24 = "Regosols"
-    t25 = "Solonchaks"
-    t26 = "Solonetz"
-    t27 = "Stagnosols"
-    t28 = "Umbrisols"
-    t29 = "Vertisols"
-    No_information = "No information available"
+    Acrisols = 0
+    Albeluvisols = 1
+    Alisols = 2
+    Andosols = 3
+    Arenosols = 4
+    Calcisols = 5
+    Cambisols = 6
+    Chernozems = 7
+    Cryosols = 8
+    Durisols = 9
+    Ferralsols = 10
+    Fluvisols = 11
+    Gleysols = 12
+    Gypsisols = 13
+    Histosols = 14
+    Kastanozems = 15
+    Leptosols = 16
+    Lixisols = 17
+    Luvisols = 18
+    Nitisols = 19
+    Phaeozems = 20
+    Planosols = 21
+    Plinthosols = 22
+    Podzols = 23
+    Regosols = 24
+    Solonchaks = 25
+    Solonetz = 26
+    Stagnosols = 27
+    Umbrisols = 28
+    Vertisols = 29
+    No_information = 255  # SoilGrids WRB code for no data
 
 
 class SoilTypeProbability(BaseModel):
@@ -49,6 +49,10 @@ class SoilTypeProbability(BaseModel):
         description="The probability of the soil type as an integer between 0 and 100",
         example=70,
     )
+
+    @field_serializer("soil_type")
+    def serialize_group(self, soil_type: SoilTypes, _info):
+        return soil_type.name
 
 
 class SoilTypeInfo(BaseModel):
@@ -61,6 +65,10 @@ class SoilTypeInfo(BaseModel):
         None, description="The soil type probabilities"
     )
 
+    @field_serializer("most_probable_soil_type")
+    def serialize_group(self, most_probable_soil_type: SoilTypes, _info):
+        return most_probable_soil_type.name
+
 
 class SoilTypeSummary(BaseModel):
     soil_type: SoilTypes = Field(..., description="The soil type", example="Acrisols")
@@ -69,6 +77,10 @@ class SoilTypeSummary(BaseModel):
         description="The number of occurrences of the soil type within the queried bounding box",
         example=70,
     )
+
+    @field_serializer("soil_type")
+    def serialize_group(self, soil_type: SoilTypes, _info):
+        return soil_type.name
 
 
 class SoilTypeJSON(BaseModel):

@@ -64,9 +64,7 @@ async def get_soil_type(
     )
     # Extract the name of the most probable soil type
     # from the SoilTypes enum using the value extracted from the raster
-    most_probable_soil_type = SoilTypes.__members__.get(
-        f"t{value}", SoilTypes.No_information
-    ).value
+    most_probable_soil_type = SoilTypes(value)
 
     # Define the paths to the additional soil maps and extract the probabilities
     # for the most probable soil type and the top k-1 most probable soil types
@@ -76,25 +74,27 @@ async def get_soil_type(
     # all probabilities are needed to find the top_k most probable soil types
     additional_soil_types = []
     additional_soil_maps = []
-    if most_probable_soil_type != SoilTypes.No_information.value:
+    if most_probable_soil_type != SoilTypes.No_information:  # .value:
         if top_k == 1:
             additional_soil_types = [most_probable_soil_type]
             additional_soil_maps = [
                 os.path.join(
                     settings.soil_maps_url,
                     wrb_soil_map,
-                    f"{most_probable_soil_type}.vrt",
+                    f"{most_probable_soil_type.name}.vrt",
                 )
             ]
         elif top_k > 1:
-            # get a list of all soil type names from the enum except No_information
+            # get a list of all soil types from the enum except No_information
             additional_soil_types = [
-                soil_type.value
+                soil_type
                 for soil_type in SoilTypes
                 if soil_type != SoilTypes.No_information
             ]
             additional_soil_maps = [
-                os.path.join(settings.soil_maps_url, wrb_soil_map, f"{soil_type}.vrt")
+                os.path.join(
+                    settings.soil_maps_url, wrb_soil_map, f"{soil_type.name}.vrt"
+                )
                 for soil_type in additional_soil_types
             ]
 
@@ -282,7 +282,7 @@ async def get_soil_type_summary(bbox: BboxQueryDep) -> SoilTypeSummaryJSON:
     # Create a list of SoilTypeSummary objects
     summaries = [
         SoilTypeSummary(
-            soil_type=SoilTypes.__members__.get(f"t{key}", SoilTypes.No_information),
+            soil_type=SoilTypes(key),
             count=count,
         )
         for key, count in sorted(types_counts.items(), key=lambda x: x[1], reverse=True)
