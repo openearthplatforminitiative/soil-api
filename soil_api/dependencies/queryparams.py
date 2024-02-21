@@ -2,8 +2,11 @@ from typing import Annotated, List
 
 from fastapi import Depends, Query
 
-from soil_api.config import settings
-from soil_api.models.soil_property import SoilDepthLabels, SoilPropertiesCodes
+from soil_api.models.soil_property import (
+    SoilDepthLabels,
+    SoilPropertiesCodes,
+    SoilPropertyValueTypes,
+)
 from soil_api.utils.validation_helpers import (
     validate_bbox,
     validate_depths,
@@ -51,8 +54,10 @@ def depth_dependency(
         Query(
             title="depths to include",
             description="List of depths to include in the query.",
+            min_length=1,
+            example=list(SoilDepthLabels.__members__.values()),
         ),
-    ] = list(SoilDepthLabels.__members__.values()),
+    ]
 ) -> List[str]:
     validate_depths(depths)
     return depths
@@ -67,8 +72,10 @@ def property_dependency(
         Query(
             title="properties to include",
             description="List of soil properties to include in the query.",
+            min_length=1,
+            example=list(SoilPropertiesCodes.__members__.values()),
         ),
-    ] = list(SoilPropertiesCodes.__members__),
+    ]
 ) -> List[str]:
     validate_properties(properties)
     return properties
@@ -83,8 +90,10 @@ def value_dependency(
         Query(
             title="values to include",
             description="List of values to include in the query.",
+            min_length=1,
+            example=list(SoilPropertyValueTypes.__members__.values()),
         ),
-    ] = settings.soil_property_value_types
+    ]
 ) -> List[str]:
     validate_values(values)
     return values
