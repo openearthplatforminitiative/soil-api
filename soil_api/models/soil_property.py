@@ -112,6 +112,14 @@ class SoilLayer(BaseModel):
     )
 
 
+class SoilPropertyValueTypes(Enum):
+    mean = "mean"
+    Q0_05 = "Q0.05"
+    Q0_5 = "Q0.5"
+    Q0_95 = "Q0.95"
+    uncertainty = "uncertainty"
+
+
 class SoilPropertyValues(BaseModel):
     mean: float | None = Field(
         None, description="The mean value of the soil property", example=50

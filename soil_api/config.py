@@ -25,24 +25,5 @@ class Settings(BaseSettings):
         else:
             return f"https://{self.api_domain}{self.api_root_path}"
 
-    soil_maps_url: str = "https://files.isric.org/soilgrids/latest/data"
-    soil_maps: dict = {"wrb": "MostProbable.vrt"}
-    homolosine_crs_wkt: str = (
-        'PROJCS["Homolosine", GEOGCS["WGS 84", DATUM["WGS_1984", '
-        'SPHEROID["WGS 84",6378137,298.257223563, AUTHORITY["EPSG","7030"]], '
-        'AUTHORITY["EPSG","6326"]], PRIMEM["Greenwich",0, AUTHORITY["EPSG","8901"]], '
-        'UNIT["degree",0.0174532925199433, AUTHORITY["EPSG","9122"]], '
-        'AUTHORITY["EPSG","4326"]], PROJECTION["Interrupted_Goode_Homolosine"], UNIT["Meter",1]]'
-    )
-    isric_roi: dict = {
-        "min_lat": -90,
-        "max_lat": 90,
-        "min_lon": -180.0,
-        "max_lon": 180,
-    }
-    no_data_vals_soilgrids: list = [-32768, 65535]
-    no_data_val: int = -99999
-    soil_property_value_types: list = ["mean", "Q0.05", "Q0.5", "Q0.95", "uncertainty"]
-
 
 settings = Settings()

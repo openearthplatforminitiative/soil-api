@@ -7,7 +7,7 @@ logging.basicConfig(level=logging.INFO)
 
 from fastapi import APIRouter
 
-from soil_api.config import settings
+from soil_api import constants
 from soil_api.dependencies.queryparams import (
     BboxQueryDep,
     DepthQueryDep,
@@ -54,9 +54,9 @@ async def get_soil_type(
     # Define the path to the WRB soil map and extract the most probable
     # soil type at the given location
     wrb_soil_map = "wrb"
-    wrb_soil_map_fname = settings.soil_maps[wrb_soil_map]
+    wrb_soil_map_fname = constants.SOIL_MAPS[wrb_soil_map]
     wrb_soil_map_path = os.path.join(
-        settings.soil_maps_url, wrb_soil_map, wrb_soil_map_fname
+        constants.SOIL_MAPS_URL, wrb_soil_map, wrb_soil_map_fname
     )
     lat, lon = location_query
     value = await extract_point_from_raster(
@@ -79,7 +79,7 @@ async def get_soil_type(
             additional_soil_types = [most_probable_soil_type]
             additional_soil_maps = [
                 os.path.join(
-                    settings.soil_maps_url,
+                    constants.SOIL_MAPS_URL,
                     wrb_soil_map,
                     f"{most_probable_soil_type.name}.vrt",
                 )
@@ -93,7 +93,7 @@ async def get_soil_type(
             ]
             additional_soil_maps = [
                 os.path.join(
-                    settings.soil_maps_url, wrb_soil_map, f"{soil_type.name}.vrt"
+                    constants.SOIL_MAPS_URL, wrb_soil_map, f"{soil_type.name}.vrt"
                 )
                 for soil_type in additional_soil_types
             ]
@@ -188,7 +188,7 @@ async def get_soil_property(
                 else:
                     soil_map_fname = f"{property}_{depth}_{value_type}.vrt"
                     soil_map_path = os.path.join(
-                        settings.soil_maps_url, property, soil_map_fname
+                        constants.SOIL_MAPS_URL, property, soil_map_fname
                     )
                     soil_map_fnames.append(soil_map_path)
 
@@ -211,7 +211,7 @@ async def get_soil_property(
         all_properties, all_depths, all_value_types, values
     ):
         # If the value is a no data value, skip it
-        if value != settings.no_data_val:
+        if value != constants.NO_DATA_VAL:
             # If the property is not in the dictionary, add it
             if property not in soil_map_info:
                 soil_map_info[property] = {}
@@ -220,7 +220,7 @@ async def get_soil_property(
                 soil_map_info[property][depth] = {}
             # If the value is a soilgrids no data value, set it to None
             # A soilgrids no data value often represents a body of water
-            if value in settings.no_data_vals_soilgrids:
+            if value in constants.NO_DATA_VALS_SOILGRIDS:
                 value = None
             soil_map_info[property][depth][value_type] = value
 
@@ -260,9 +260,9 @@ async def get_soil_property(
 async def get_soil_type_summary(bbox: BboxQueryDep) -> SoilTypeSummaryJSON:
     # Define the path to the WRB soil map
     wrb_soil_map = "wrb"
-    wrb_soil_map_fname = settings.soil_maps[wrb_soil_map]
+    wrb_soil_map_fname = constants.SOIL_MAPS[wrb_soil_map]
     wrb_soil_map_path = os.path.join(
-        settings.soil_maps_url, wrb_soil_map, wrb_soil_map_fname
+        constants.SOIL_MAPS_URL, wrb_soil_map, wrb_soil_map_fname
     )
 
     # Extract the soil types and their counts from the WRB soil map

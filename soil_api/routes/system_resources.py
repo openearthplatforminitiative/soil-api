@@ -3,6 +3,7 @@ import os
 import rasterio
 from fastapi import APIRouter, Response
 from healthcheck import HealthCheck
+from soil_api import constants
 
 from soil_api.config import settings
 
@@ -11,8 +12,8 @@ router = APIRouter()
 
 def soilgrids_healthcheck():
     soil_map = "wrb"
-    soil_map_fname = settings.soil_maps[soil_map]
-    soil_map_path = os.path.join(settings.soil_maps_url, soil_map, soil_map_fname)
+    soil_map_fname = constants.SOIL_MAPS[soil_map]
+    soil_map_path = os.path.join(constants.SOIL_MAPS_URL, soil_map, soil_map_fname)
     try:
         with rasterio.open(soil_map_path) as src:
             return True, "SoilGrids service is available"

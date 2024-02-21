@@ -1,9 +1,13 @@
 from fastapi import HTTPException
+from soil_api import constants
 
-from soil_api.config import settings
-from soil_api.models.soil_property import SoilDepthLabels, SoilPropertiesCodes
+from soil_api.models.soil_property import (
+    SoilDepthLabels,
+    SoilPropertiesCodes,
+    SoilPropertyValueTypes,
+)
 
-ISRIC_ROI = settings.isric_roi
+ISRIC_ROI = constants.ISRIC_ROI
 
 
 def validate_properties(properties: list[str]) -> None:
@@ -84,13 +88,14 @@ def validate_values(values: list[str]) -> None:
     Returns:
     None
     """
-    invalid_values = set(values) - set(settings.soil_property_value_types)
+    all_value_types = [v.value for v in SoilPropertyValueTypes]
+    invalid_values = set(values) - set(all_value_types)
     if invalid_values:
         raise HTTPException(
             status_code=400,
             detail=(
                 f"Invalid values: {', '.join(invalid_values)}. Must "
-                f"be one of: {', '.join(settings.soil_property_value_types)}"
+                f"be one of: {', '.join(all_value_types)}"
             ),
         )
 

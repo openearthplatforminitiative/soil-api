@@ -5,8 +5,7 @@ import rasterio
 from fastapi import HTTPException
 from rasterio.crs import CRS
 from rasterio.warp import transform_geom
-
-from soil_api.config import settings
+from soil_api import constants
 
 
 def transfrom_coordinates_to_homolosine_crs(
@@ -22,7 +21,7 @@ def transfrom_coordinates_to_homolosine_crs(
     tuple: Transformed coordinates.
     """
     feature = {"type": "Point", "coordinates": [longitude, latitude]}
-    crs = CRS.from_string(settings.homolosine_crs_wkt)
+    crs = CRS.from_string(constants.HOMOLOSINE_CRS_WKT)
     feature_proj = transform_geom(CRS.from_epsg(4326), crs, feature)
     latitude = feature_proj["coordinates"][1]
     longitude = feature_proj["coordinates"][0]
@@ -33,7 +32,7 @@ async def extract_point_from_raster(
     raster_path: str, latitude: float, longitude: float
 ) -> int:
     """Extracts value from raster at given point.
-    If raster_path is None, returns settings.no_data_val.
+    If raster_path is None, returns constants.NO_DATA_VAL.
     If the raster file cannot be read, returns an HTTPException.
 
     Args:
@@ -45,7 +44,7 @@ async def extract_point_from_raster(
     int: Value at given point.
     """
     if raster_path is None:
-        return settings.no_data_val
+        return constants.NO_DATA_VAL
     loop = asyncio.get_running_loop()
     try:
         src = await loop.run_in_executor(None, rasterio.open, raster_path)
