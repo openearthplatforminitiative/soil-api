@@ -7,12 +7,7 @@ from soil_api.models.soil_property import (
     SoilPropertiesCodes,
     SoilPropertyValueTypes,
 )
-from soil_api.utils.validation_helpers import (
-    validate_bbox,
-    validate_depths,
-    validate_properties,
-    validate_values,
-)
+from soil_api.utils.validation_helpers import validate_bbox
 
 
 def location_query_dependency(
@@ -50,56 +45,50 @@ SoilTypeTopKDep = Annotated[int, Depends(soil_type_top_k_dependency)]
 
 def depth_dependency(
     depths: Annotated[
-        List[str],
+        List[SoilDepthLabels],
         Query(
             title="depths to include",
             description="List of depths to include in the query.",
             min_length=1,
-            example=list(SoilDepthLabels.__members__.values()),
         ),
     ]
-) -> List[str]:
-    validate_depths(depths)
+) -> List[SoilDepthLabels]:
     return depths
 
 
-DepthQueryDep = Annotated[List[str], Depends(depth_dependency)]
+DepthQueryDep = Annotated[List[SoilDepthLabels], Depends(depth_dependency)]
 
 
 def property_dependency(
     properties: Annotated[
-        List[str],
+        List[SoilPropertiesCodes],
         Query(
             title="properties to include",
             description="List of soil properties to include in the query.",
             min_length=1,
-            example=list(SoilPropertiesCodes.__members__.values()),
         ),
     ]
-) -> List[str]:
-    validate_properties(properties)
+) -> List[SoilPropertiesCodes]:
     return properties
 
 
-PropertyQueryDep = Annotated[List[str], Depends(property_dependency)]
+PropertyQueryDep = Annotated[List[SoilPropertiesCodes], Depends(property_dependency)]
 
 
 def value_dependency(
     values: Annotated[
-        List[str],
+        List[SoilPropertyValueTypes],
         Query(
             title="values to include",
             description="List of values to include in the query.",
             min_length=1,
-            example=list(SoilPropertyValueTypes.__members__.values()),
         ),
     ]
-) -> List[str]:
-    validate_values(values)
+) -> List[SoilPropertyValueTypes]:
     return values
 
 
-ValueQueryDep = Annotated[List[str], Depends(value_dependency)]
+ValueQueryDep = Annotated[List[SoilPropertyValueTypes], Depends(value_dependency)]
 
 
 def bbox_query_dependency(
