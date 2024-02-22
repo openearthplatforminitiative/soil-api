@@ -1,8 +1,11 @@
 import pathlib
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.docs import get_redoc_html
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import JSONResponse
+from pydantic_core import PydanticUndefinedType
 
 from soil_api.config import settings
 from soil_api.openapi import openapi
@@ -25,6 +28,27 @@ def get_application() -> FastAPI:
 
 
 app = get_application()
+
+
+# Workaround for empty/missing list params
+# Won't be necessary when this issue is resolved:
+# https://github.com/tiangolo/fastapi/issues/9920
+@app.exception_handler(RequestValidationError)
+async def request_validation_exception_handler(
+    _req: Request, exc: RequestValidationError
+) -> JSONResponse:
+    """Handle request validation errors."""
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={
+            "detail": jsonable_encoder(
+                exc.errors(),
+                custom_encoder={
+                    PydanticUndefinedType: lambda _: None,
+                },
+            )
+        },
+    )
 
 
 @app.get("/redoc", include_in_schema=False)
