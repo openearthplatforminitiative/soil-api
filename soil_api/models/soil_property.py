@@ -8,20 +8,6 @@ from pydantic import BaseModel, Field
 from soil_api.models.shared import FeatureType, PointGeometry
 
 
-class SoilPropertiesNames(Enum):
-    bdod = "Bulk density"
-    cec = "Cation exchange capacity (CEC pH 7)"
-    cfvo = "Coarse fragments"
-    clay = "Clay"
-    nitrogen = "Nitrogen"
-    ocd = "Organic carbon density"
-    ocs = "Organic carbon stocks"
-    phh2o = "pH water"
-    sand = "Sand"
-    silt = "Silt"
-    soc = "Soil organic carbon"
-
-
 class SoilPropertiesCodes(Enum):
     bdod = "bdod"
     cec = "cec"
@@ -36,46 +22,102 @@ class SoilPropertiesCodes(Enum):
     soc = "soc"
 
 
-class SoilPropertiesMappedUnits(Enum):
-    bdod = "cg/cm³"
-    cec = "mmol(c)/kg"
-    cfvo = "cm³/dm³"
-    clay = "g/kg"
-    nitrogen = "cg/kg"
-    ocd = "hg/m³"
-    ocs = "t/ha"
-    phh2o = "pH*10"
-    sand = "g/kg"
-    silt = "g/kg"
-    soc = "dg/kg"
+class SoilMappedUnits(Enum):
+    cg_cm3 = "cg/cm³"
+    mmol_c_kg = "mmol(c)/kg"
+    cm3_dm3 = "cm³/dm³"
+    g_kg = "g/kg"
+    cg_kg = "cg/kg"
+    hg_m3 = "hg/m³"
+    t_ha = "t/ha"
+    pH_10 = "pH*10"
+    dg_kg = "dg/kg"
 
 
-class SoilPropertiesTargetUnits(Enum):
-    bdod = "kg/dm³"
-    cec = "cmol(c)/kg"
-    cfvo = "cm³/100cm³"
-    clay = "%"
-    nitrogen = "g/kg"
-    ocd = "hg/m³"
-    ocs = "kg/m²"
-    phh2o = "pH"
-    sand = "%"
-    silt = "%"
-    soc = "g/kg"
+class SoilTargetUnits(Enum):
+    kg_dm3 = "kg/dm³"
+    cmol_c_kg = "cmol(c)/kg"
+    cm3_100cm3 = "cm³/100cm³"
+    percent = "%"
+    g_kg = "g/kg"
+    hg_m3 = "hg/m³"
+    kg_m2 = "kg/m²"
+    pH = "pH"
 
 
-class SoilPropertiesConversionFactors(Enum):
-    bdod = 100
-    cec = 10
-    cfvo = 10
-    clay = 10
-    nitrogen = 100
-    ocd = 10
-    ocs = 10
-    phh2o = 10
-    sand = 10
-    silt = 10
-    soc = 10
+class SoilConversionFactors(Enum):
+    ten = 10
+    hundred = 100
+
+
+soil_property_dict = {
+    SoilPropertiesCodes.bdod: {
+        "name": "Bulk density",
+        "mapped_units": SoilMappedUnits.cg_cm3,
+        "target_units": SoilTargetUnits.kg_dm3,
+        "conversion_factor": SoilConversionFactors.hundred,
+    },
+    SoilPropertiesCodes.cec: {
+        "name": "Cation exchange capacity (CEC pH 7)",
+        "mapped_units": SoilMappedUnits.mmol_c_kg,
+        "target_units": SoilTargetUnits.cmol_c_kg,
+        "conversion_factor": SoilConversionFactors.ten,
+    },
+    SoilPropertiesCodes.cfvo: {
+        "name": "Coarse fragments",
+        "mapped_units": SoilMappedUnits.cm3_dm3,
+        "target_units": SoilTargetUnits.cm3_100cm3,
+        "conversion_factor": SoilConversionFactors.ten,
+    },
+    SoilPropertiesCodes.clay: {
+        "name": "Clay",
+        "mapped_units": SoilMappedUnits.g_kg,
+        "target_units": SoilTargetUnits.percent,
+        "conversion_factor": SoilConversionFactors.ten,
+    },
+    SoilPropertiesCodes.nitrogen: {
+        "name": "Nitrogen",
+        "mapped_units": SoilMappedUnits.cg_kg,
+        "target_units": SoilTargetUnits.g_kg,
+        "conversion_factor": SoilConversionFactors.hundred,
+    },
+    SoilPropertiesCodes.ocd: {
+        "name": "Organic carbon density",
+        "mapped_units": SoilMappedUnits.hg_m3,
+        "target_units": SoilTargetUnits.hg_m3,
+        "conversion_factor": SoilConversionFactors.ten,
+    },
+    SoilPropertiesCodes.ocs: {
+        "name": "Organic carbon stocks",
+        "mapped_units": SoilMappedUnits.t_ha,
+        "target_units": SoilTargetUnits.kg_m2,
+        "conversion_factor": SoilConversionFactors.ten,
+    },
+    SoilPropertiesCodes.phh2o: {
+        "name": "pH water",
+        "mapped_units": SoilMappedUnits.pH_10,
+        "target_units": SoilTargetUnits.pH,
+        "conversion_factor": SoilConversionFactors.ten,
+    },
+    SoilPropertiesCodes.sand: {
+        "name": "Sand",
+        "mapped_units": SoilMappedUnits.g_kg,
+        "target_units": SoilTargetUnits.percent,
+        "conversion_factor": SoilConversionFactors.ten,
+    },
+    SoilPropertiesCodes.silt: {
+        "name": "Silt",
+        "mapped_units": SoilMappedUnits.g_kg,
+        "target_units": SoilTargetUnits.percent,
+        "conversion_factor": SoilConversionFactors.ten,
+    },
+    SoilPropertiesCodes.soc: {
+        "name": "Soil organic carbon",
+        "mapped_units": SoilMappedUnits.dg_kg,
+        "target_units": SoilTargetUnits.g_kg,
+        "conversion_factor": SoilConversionFactors.ten,
+    },
+}
 
 
 class SoilLayerList(BaseModel):
@@ -83,13 +125,13 @@ class SoilLayerList(BaseModel):
 
 
 class SoilPropertyUnit(BaseModel):
-    d_factor: SoilPropertiesConversionFactors = Field(
+    conversion_factor: SoilConversionFactors = Field(
         ..., description="The conversion factor", example=10
     )
-    mapped_units: SoilPropertiesMappedUnits = Field(
+    mapped_units: SoilMappedUnits = Field(
         ..., description="The mapped unit of the soil property", example="cm³/dm³"
     )
-    target_units: SoilPropertiesTargetUnits = Field(
+    target_units: SoilTargetUnits = Field(
         ..., description="The target unit of the soil property", example="m³/ha"
     )
     uncertainty_unit: str = Field(
@@ -101,7 +143,7 @@ class SoilLayer(BaseModel):
     code: SoilPropertiesCodes = Field(
         ..., description="The soil property code", example="bdod"
     )
-    name: SoilPropertiesNames = Field(
+    name: str = Field(
         ..., description="The name of the soil property", example="Bulk density"
     )
     unit_measure: SoilPropertyUnit = Field(
@@ -157,48 +199,59 @@ class SoilDepthLabels(Enum):
     depth_100_200 = "100-200cm"
 
 
-# Create a reverse lookup dictionary
-REVERSE_DEPTH_LOOKUP = {
-    v.value: k for k, v in list(SoilDepthLabels.__members__.items())
-}
-
-
-# Function to get the enum member using the reverse lookup
-def get_soil_depth_from_label(depth_string: str) -> SoilDepthLabels:
-    try:
-        return REVERSE_DEPTH_LOOKUP[depth_string]
-    except KeyError:
-        raise ValueError(f"No soil depth label found for '{depth_string}'")
-
-
-class SoilDepthTop(Enum):
-    depth_0_5 = 0
-    depth_0_30 = 0
-    depth_5_15 = 5
-    depth_15_30 = 15
-    depth_30_60 = 30
-    depth_60_100 = 60
-    depth_100_200 = 100
-
-
-class SoilDepthBottom(Enum):
-    depth_0_5 = 5
-    depth_0_30 = 30
-    depth_5_15 = 15
-    depth_15_30 = 30
-    depth_30_60 = 60
-    depth_60_100 = 100
-    depth_100_200 = 200
+class SoilDepths(Enum):
+    d_0 = 0
+    d_5 = 5
+    d_15 = 15
+    d_30 = 30
+    d_60 = 60
+    d_100 = 100
+    d_200 = 200
 
 
 class SoilDepthUnits(Enum):
-    depth_0_5 = "cm"
-    depth_0_30 = "cm"
-    depth_5_15 = "cm"
-    depth_15_30 = "cm"
-    depth_30_60 = "cm"
-    depth_60_100 = "cm"
-    depth_100_200 = "cm"
+    cm = "cm"
+
+
+soil_depth_dict = {
+    SoilDepthLabels.depth_0_5: {
+        "top_depth": SoilDepths.d_0,
+        "bottom_depth": SoilDepths.d_5,
+        "unit_depth": SoilDepthUnits.cm,
+    },
+    SoilDepthLabels.depth_0_30: {
+        "top_depth": SoilDepths.d_0,
+        "bottom_depth": SoilDepths.d_30,
+        "unit_depth": SoilDepthUnits.cm,
+    },
+    SoilDepthLabels.depth_5_15: {
+        "top_depth": SoilDepths.d_5,
+        "bottom_depth": SoilDepths.d_15,
+        "unit_depth": SoilDepthUnits.cm,
+    },
+    SoilDepthLabels.depth_15_30: {
+        "top_depth": SoilDepths.d_15,
+        "bottom_depth": SoilDepths.d_30,
+        "unit_depth": SoilDepthUnits.cm,
+    },
+    SoilDepthLabels.depth_30_60: {
+        "top_depth": SoilDepths.d_30,
+        "bottom_depth": SoilDepths.d_60,
+        "unit_depth": SoilDepthUnits.cm,
+    },
+    SoilDepthLabels.depth_60_100: {
+        "top_depth": SoilDepths.d_60,
+        "bottom_depth": SoilDepths.d_100,
+        "unit_depth": SoilDepthUnits.cm,
+    },
+    SoilDepthLabels.depth_100_200: {
+        "top_depth": SoilDepths.d_100,
+        "bottom_depth": SoilDepths.d_200,
+        "unit_depth": SoilDepthUnits.cm,
+    },
+}
+
+top_depth, bottom_depth, depth_unit = soil_depth_dict[SoilDepthLabels.depth_0_5]
 
 
 class SoilDepth(BaseModel):
@@ -210,10 +263,8 @@ class SoilDepth(BaseModel):
 
 
 class DepthRange(BaseModel):
-    top_depth: SoilDepthTop = Field(..., description="The top depth", example=0)
-    bottom_depth: SoilDepthBottom = Field(
-        ..., description="The bottom depth", example=5
-    )
+    top_depth: SoilDepths = Field(..., description="The top depth", example=0)
+    bottom_depth: SoilDepths = Field(..., description="The bottom depth", example=5)
     unit_depth: SoilDepthUnits = Field(
         ..., description="The unit of the depth range", example="cm"
     )

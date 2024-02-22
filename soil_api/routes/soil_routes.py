@@ -20,7 +20,12 @@ from soil_api.models.shared import (
     GeometryType,
     PointGeometry,
 )
-from soil_api.models.soil_property import SoilLayerList, SoilPropertyJSON
+from soil_api.models.soil_property import (
+    SoilDepthLabels,
+    SoilLayerList,
+    SoilPropertiesCodes,
+    SoilPropertyJSON,
+)
 from soil_api.models.soil_type import (
     SoilTypeInfo,
     SoilTypeJSON,
@@ -74,7 +79,7 @@ async def get_soil_type(
     # all probabilities are needed to find the top_k most probable soil types
     additional_soil_types = []
     additional_soil_maps = []
-    if most_probable_soil_type != SoilTypes.No_information:  # .value:
+    if most_probable_soil_type != SoilTypes.No_information:
         if top_k == 1:
             additional_soil_types = [most_probable_soil_type]
             additional_soil_maps = [
@@ -181,14 +186,20 @@ async def get_soil_property(
                 # ocs is only available for 0-30cm (and vice versa)
                 # for uncompatible cases, set the soil map path to None
                 # so that the raster extraction step is skipped
-                if (property == "ocs" and depth != "0-30cm") or (
-                    depth == "0-30cm" and property != "ocs"
+                if (
+                    property == SoilPropertiesCodes.ocs
+                    and depth != SoilDepthLabels.depth_0_30
+                ) or (
+                    depth == SoilDepthLabels.depth_0_30
+                    and property != SoilPropertiesCodes.ocs
                 ):
                     soil_map_fnames.append(None)
                 else:
-                    soil_map_fname = f"{property}_{depth}_{value_type}.vrt"
+                    soil_map_fname = (
+                        f"{property.value}_{depth.value}_{value_type.value}.vrt"
+                    )
                     soil_map_path = os.path.join(
-                        constants.SOIL_MAPS_URL, property, soil_map_fname
+                        constants.SOIL_MAPS_URL, property.value, soil_map_fname
                     )
                     soil_map_fnames.append(soil_map_path)
 
@@ -222,7 +233,7 @@ async def get_soil_property(
             # A soilgrids no data value often represents a body of water
             if value in constants.NO_DATA_VALS_SOILGRIDS:
                 value = None
-            soil_map_info[property][depth][value_type] = value
+            soil_map_info[property][depth][value_type.value] = value
 
     # Create a list of SoilLayer objects and fill them using
     # the soil_map_info dictionary. Skip the properties that
