@@ -1,35 +1,8 @@
 from fastapi import HTTPException
 
 from soil_api import constants
-from soil_api.models.soil_property import (
-    SoilDepthLabels,
-    SoilPropertiesCodes,
-    SoilPropertyValueTypes,
-)
 
 ISRIC_ROI = constants.ISRIC_ROI
-
-
-def validate_properties(properties: list[str]) -> None:
-    """Validate the properties parameter. If any of the properties are
-    invalid, raise an HTTPException with status code 400.
-
-    Parameters:
-    - properties (list[str]): The soil properties to validate.
-
-    Returns:
-    None
-    """
-    # Check if all properties are valid using set intersection
-    invalid_properties = set(properties) - set(SoilPropertiesCodes.__members__)
-    if invalid_properties:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"Invalid properties: {', '.join(invalid_properties)}. "
-                f"Must be one of: {', '.join(SoilPropertiesCodes.__members__)}"
-            ),
-        )
 
 
 def validate_coordinates(latitude: float, longitude: float) -> None:
@@ -53,50 +26,6 @@ def validate_coordinates(latitude: float, longitude: float) -> None:
         raise HTTPException(
             status_code=404,
             detail="Queried coordinates are outside the region of interest",
-        )
-
-
-def validate_depths(depths: list[str]) -> None:
-    """Validate the depths parameter. If any of the depths are invalid,
-    raise an HTTPException with status code 400.
-
-    Parameters:
-    - depths (list[str]): The depths to validate.
-
-    Returns:
-    None
-    """
-    all_depth_labels = [depth.value for depth in SoilDepthLabels]
-    invalid_depths = set(depths) - set(all_depth_labels)
-    if invalid_depths:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"Invalid depths: {', '.join(invalid_depths)}. Must"
-                f" be one of: {', '.join(all_depth_labels)}"
-            ),
-        )
-
-
-def validate_values(values: list[str]) -> None:
-    """Validate the values parameter. If any of the values are invalid,
-    raise an HTTPException with status code 400.
-
-    Parameters:
-    - values (list[str]): The values to validate.
-
-    Returns:
-    None
-    """
-    all_value_types = [v.value for v in SoilPropertyValueTypes]
-    invalid_values = set(values) - set(all_value_types)
-    if invalid_values:
-        raise HTTPException(
-            status_code=400,
-            detail=(
-                f"Invalid values: {', '.join(invalid_values)}. Must "
-                f"be one of: {', '.join(all_value_types)}"
-            ),
         )
 
 
