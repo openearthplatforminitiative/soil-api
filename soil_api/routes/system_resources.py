@@ -3,8 +3,8 @@ import os
 import rasterio
 from fastapi import APIRouter, Response
 from healthcheck import HealthCheck
-from soil_api import constants
 
+from soil_api import constants
 from soil_api.config import settings
 
 router = APIRouter()

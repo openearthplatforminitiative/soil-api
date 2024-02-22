@@ -3,8 +3,6 @@ import logging
 import os
 import time
 
-logging.basicConfig(level=logging.INFO)
-
 from fastapi import APIRouter
 
 from soil_api import constants
@@ -38,6 +36,8 @@ from soil_api.utils.point_extraction import (
     transfrom_coordinates_to_homolosine_crs,
 )
 from soil_api.utils.response_generator import generate_soil_layer
+
+logging.basicConfig(level=logging.INFO)
 
 router = APIRouter(tags=["soil"])
 

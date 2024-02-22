@@ -1,6 +1,6 @@
 from fastapi import HTTPException
-from soil_api import constants
 
+from soil_api import constants
 from soil_api.models.soil_property import (
     SoilDepthLabels,
     SoilPropertiesCodes,
