@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 from enum import Enum
 from typing import List
 
@@ -119,11 +117,6 @@ soil_property_dict = {
     },
 }
 
-
-class SoilLayerList(BaseModel):
-    layers: List[SoilLayer] = Field(..., description="The queried soil property layers")
-
-
 class SoilPropertyUnit(BaseModel):
     conversion_factor: SoilConversionFactors = Field(
         ..., description="The conversion factor", example=10
@@ -136,57 +129,7 @@ class SoilPropertyUnit(BaseModel):
     )
     uncertainty_unit: str = Field(
         ..., description="The unit of the uncertainty", example=""
-    )
-
-
-class SoilLayer(BaseModel):
-    code: SoilPropertiesCodes = Field(
-        ..., description="The soil property code", example="bdod"
-    )
-    name: str = Field(
-        ..., description="The name of the soil property", example="Bulk density"
-    )
-    unit_measure: SoilPropertyUnit = Field(
-        ..., description="The unit of the soil property"
-    )
-    depths: List[SoilDepth] = Field(
-        ..., description="The queried soil depths with values"
-    )
-
-
-class SoilPropertyValueTypes(Enum):
-    mean = "mean"
-    Q0_05 = "Q0.05"
-    Q0_5 = "Q0.5"
-    Q0_95 = "Q0.95"
-    uncertainty = "uncertainty"
-
-
-class SoilPropertyValues(BaseModel):
-    mean: float | None = Field(
-        None, description="The mean value of the soil property", example=50
-    )
-    Q0_05: float | None = Field(
-        None,
-        description="The 5th percentile of the soil property",
-        example=40,
-        alias="Q0.05",
-    )
-    Q0_5: float | None = Field(
-        None,
-        description="The 50th percentile of the soil property",
-        example=50,
-        alias="Q0.5",
-    )
-    Q0_95: float | None = Field(
-        None,
-        description="The 95th percentile of the soil property",
-        example=60,
-        alias="Q0.95",
-    )
-    uncertainty: float | None = Field(
-        None, description="The uncertainty of the soil property", example=5
-    )
+    ) 
 
 
 class SoilDepthLabels(Enum):
@@ -253,6 +196,46 @@ soil_depth_dict = {
 
 top_depth, bottom_depth, depth_unit = soil_depth_dict[SoilDepthLabels.depth_0_5]
 
+class DepthRange(BaseModel):
+    top_depth: SoilDepths = Field(..., description="The top depth", example=0)
+    bottom_depth: SoilDepths = Field(..., description="The bottom depth", example=5)
+    unit_depth: SoilDepthUnits = Field(
+        ..., description="The unit of the depth range", example="cm"
+    )
+
+class SoilPropertyValueTypes(Enum):
+    mean = "mean"
+    Q0_05 = "Q0.05"
+    Q0_5 = "Q0.5"
+    Q0_95 = "Q0.95"
+    uncertainty = "uncertainty"
+
+
+class SoilPropertyValues(BaseModel):
+    mean: float | None = Field(
+        None, description="The mean value of the soil property", example=50
+    )
+    Q0_05: float | None = Field(
+        None,
+        description="The 5th percentile of the soil property",
+        example=40,
+        alias="Q0.05",
+    )
+    Q0_5: float | None = Field(
+        None,
+        description="The 50th percentile of the soil property",
+        example=50,
+        alias="Q0.5",
+    )
+    Q0_95: float | None = Field(
+        None,
+        description="The 95th percentile of the soil property",
+        example=60,
+        alias="Q0.95",
+    )
+    uncertainty: float | None = Field(
+        None, description="The uncertainty of the soil property", example=5
+    )
 
 class SoilDepth(BaseModel):
     range: DepthRange = Field(..., description="The soil depth range")
@@ -261,14 +244,22 @@ class SoilDepth(BaseModel):
         ..., description="The queried soil property values"
     )
 
-
-class DepthRange(BaseModel):
-    top_depth: SoilDepths = Field(..., description="The top depth", example=0)
-    bottom_depth: SoilDepths = Field(..., description="The bottom depth", example=5)
-    unit_depth: SoilDepthUnits = Field(
-        ..., description="The unit of the depth range", example="cm"
+class SoilLayer(BaseModel):
+    code: SoilPropertiesCodes = Field(
+        ..., description="The soil property code", example="bdod"
+    )
+    name: str = Field(
+        ..., description="The name of the soil property", example="Bulk density"
+    )
+    unit_measure: SoilPropertyUnit = Field(
+        ..., description="The unit of the soil property"
+    )
+    depths: List[SoilDepth] = Field(
+        ..., description="The queried soil depths with values"
     )
 
+class SoilLayerList(BaseModel):
+    layers: List[SoilLayer] = Field(..., description="The queried soil property layers")
 
 class SoilPropertyJSON(BaseModel):
     type: FeatureType = Field(
