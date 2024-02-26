@@ -117,6 +117,7 @@ soil_property_dict = {
     },
 }
 
+
 class SoilPropertyUnit(BaseModel):
     conversion_factor: SoilConversionFactors = Field(
         ..., description="The conversion factor", example=10
@@ -129,7 +130,7 @@ class SoilPropertyUnit(BaseModel):
     )
     uncertainty_unit: str = Field(
         ..., description="The unit of the uncertainty", example=""
-    ) 
+    )
 
 
 class SoilDepthLabels(Enum):
@@ -196,12 +197,14 @@ soil_depth_dict = {
 
 top_depth, bottom_depth, depth_unit = soil_depth_dict[SoilDepthLabels.depth_0_5]
 
+
 class DepthRange(BaseModel):
     top_depth: SoilDepths = Field(..., description="The top depth", example=0)
     bottom_depth: SoilDepths = Field(..., description="The bottom depth", example=5)
     unit_depth: SoilDepthUnits = Field(
         ..., description="The unit of the depth range", example="cm"
     )
+
 
 class SoilPropertyValueTypes(Enum):
     mean = "mean"
@@ -237,12 +240,14 @@ class SoilPropertyValues(BaseModel):
         None, description="The uncertainty of the soil property", example=5
     )
 
+
 class SoilDepth(BaseModel):
     range: DepthRange = Field(..., description="The soil depth range")
     label: SoilDepthLabels = Field(..., description="The soil depth label")
     values: SoilPropertyValues = Field(
         ..., description="The queried soil property values"
     )
+
 
 class SoilLayer(BaseModel):
     code: SoilPropertiesCodes = Field(
@@ -258,8 +263,10 @@ class SoilLayer(BaseModel):
         ..., description="The queried soil depths with values"
     )
 
+
 class SoilLayerList(BaseModel):
     layers: List[SoilLayer] = Field(..., description="The queried soil property layers")
+
 
 class SoilPropertyJSON(BaseModel):
     type: FeatureType = Field(
