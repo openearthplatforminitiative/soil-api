@@ -1,25 +1,8 @@
 from fastapi import HTTPException
 
-from soil_api.config import settings
-from soil_api.models.soil import SoilProperties
+from soil_api import constants
 
-ISRIC_ROI = settings.isric_roi
-
-
-def validate_property(property: str) -> None:
-    """Validate the property parameter.
-
-    Parameters:
-    - property (str): The soil property to validate.
-
-    Returns:
-    None
-    """
-    if property not in SoilProperties.__members__:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid property: {property}. Must be one of: {', '.join(SoilProperties.__members__)}",
-        )
+ISRIC_ROI = constants.ISRIC_ROI
 
 
 def validate_coordinates(latitude: float, longitude: float) -> None:
@@ -46,23 +29,22 @@ def validate_coordinates(latitude: float, longitude: float) -> None:
         )
 
 
-def validate_depth(depth: str, property: str) -> None:
-    """Validate the depth parameter.
+def validate_bbox(bbox: list[float]) -> None:
+    """Validate the bbox parameter. If the bbox is invalid, raise an
+    HTTPException with status code 400. If the bbox is outside the region
+    of interest, raise an HTTPException with status code 404.
 
     Parameters:
-    - depth (str): The depth to validate.
-    - property (str): The soil property to validate.
+    - bbox (list[float]): The bounding box to validate.
 
     Returns:
     None
     """
-    if property == "ocs" and depth != "0-30":
+    if bbox[0] > bbox[2] or bbox[1] > bbox[3]:
         raise HTTPException(
             status_code=400,
-            detail=f"Invalid depth: '{depth}' for property 'ocs'. Must be '0-30'.",
-        )
-    elif property != "ocs" and depth not in settings.depths:
-        raise HTTPException(
-            status_code=400,
-            detail=f"Invalid depth: '{depth}' for property '{property}'. Must be one of: {', '.join(settings.depths)}",
+            detail=(
+                f"Invalid bbox: {bbox}. The first two values must be the lower "
+                "left corner and the last two values must be the upper right corner."
+            ),
         )
