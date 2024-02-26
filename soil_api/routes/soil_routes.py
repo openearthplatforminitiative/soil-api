@@ -34,6 +34,7 @@ from soil_api.models.soil_type import (
     SoilTypeSummary,
     SoilTypeSummaryInfo,
     SoilTypeSummaryJSON,
+    soil_type_dict,
 )
 from soil_api.utils.bbox_extraction import extract_bbox_from_raster
 from soil_api.utils.point_extraction import (
@@ -69,7 +70,7 @@ async def get_soil_type(
     )
     # Extract the name of the most probable soil type
     # from the SoilTypes enum using the value extracted from the raster
-    most_probable_soil_type = SoilTypes(value)
+    most_probable_soil_type = soil_type_dict[value]
 
     # Define the paths to the additional soil maps and extract the probabilities
     # for the most probable soil type and the top k-1 most probable soil types
@@ -293,7 +294,7 @@ async def get_soil_type_summary(bbox: BboxQueryDep) -> SoilTypeSummaryJSON:
     # Create a list of SoilTypeSummary objects
     summaries = [
         SoilTypeSummary(
-            soil_type=SoilTypes(key),
+            soil_type=soil_type_dict[key],
             count=count,
         )
         for key, count in sorted(types_counts.items(), key=lambda x: x[1], reverse=True)

@@ -7,37 +7,72 @@ from soil_api.models.shared import BoundingBoxGeometry, FeatureType, PointGeomet
 
 
 class SoilTypes(Enum):
-    Acrisols = 0
-    Albeluvisols = 1
-    Alisols = 2
-    Andosols = 3
-    Arenosols = 4
-    Calcisols = 5
-    Cambisols = 6
-    Chernozems = 7
-    Cryosols = 8
-    Durisols = 9
-    Ferralsols = 10
-    Fluvisols = 11
-    Gleysols = 12
-    Gypsisols = 13
-    Histosols = 14
-    Kastanozems = 15
-    Leptosols = 16
-    Lixisols = 17
-    Luvisols = 18
-    Nitisols = 19
-    Phaeozems = 20
-    Planosols = 21
-    Plinthosols = 22
-    Podzols = 23
-    Regosols = 24
-    Solonchaks = 25
-    Solonetz = 26
-    Stagnosols = 27
-    Umbrisols = 28
-    Vertisols = 29
-    No_information = 255  # SoilGrids WRB code for no data
+    Acrisols = "Acrisols"
+    Albeluvisols = "Albeluvisols"
+    Alisols = "Alisols"
+    Andosols = "Andosols"
+    Arenosols = "Arenosols"
+    Calcisols = "Calcisols"
+    Cambisols = "Cambisols"
+    Chernozems = "Chernozems"
+    Cryosols = "Cryosols"
+    Durisols = "Durisols"
+    Ferralsols = "Ferralsols"
+    Fluvisols = "Fluvisols"
+    Gleysols = "Gleysols"
+    Gypsisols = "Gypsisols"
+    Histosols = "Histosols"
+    Kastanozems = "Kastanozems"
+    Leptosols = "Leptosols"
+    Lixisols = "Lixisols"
+    Luvisols = "Luvisols"
+    Nitisols = "Nitisols"
+    Phaeozems = "Phaeozems"
+    Planosols = "Planosols"
+    Plinthosols = "Plinthosols"
+    Podzols = "Podzols"
+    Regosols = "Regosols"
+    Solonchaks = "Solonchaks"
+    Solonetz = "Solonetz"
+    Stagnosols = "Stagnosols"
+    Umbrisols = "Umbrisols"
+    Vertisols = "Vertisols"
+    No_information = "No information"
+
+
+soil_type_dict = {
+    0: SoilTypes.Acrisols,
+    1: SoilTypes.Albeluvisols,
+    2: SoilTypes.Alisols,
+    3: SoilTypes.Andosols,
+    4: SoilTypes.Arenosols,
+    5: SoilTypes.Calcisols,
+    6: SoilTypes.Cambisols,
+    7: SoilTypes.Chernozems,
+    8: SoilTypes.Cryosols,
+    9: SoilTypes.Durisols,
+    10: SoilTypes.Ferralsols,
+    11: SoilTypes.Fluvisols,
+    12: SoilTypes.Gleysols,
+    13: SoilTypes.Gypsisols,
+    14: SoilTypes.Histosols,
+    15: SoilTypes.Kastanozems,
+    16: SoilTypes.Leptosols,
+    17: SoilTypes.Lixisols,
+    18: SoilTypes.Luvisols,
+    19: SoilTypes.Nitisols,
+    20: SoilTypes.Phaeozems,
+    21: SoilTypes.Planosols,
+    22: SoilTypes.Plinthosols,
+    23: SoilTypes.Podzols,
+    24: SoilTypes.Regosols,
+    25: SoilTypes.Solonchaks,
+    26: SoilTypes.Solonetz,
+    27: SoilTypes.Stagnosols,
+    28: SoilTypes.Umbrisols,
+    29: SoilTypes.Vertisols,
+    255: SoilTypes.No_information,  # SoilGrids WRB code for no data
+}
 
 
 class SoilTypeProbability(BaseModel):
