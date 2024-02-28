@@ -56,6 +56,7 @@ metadata:
   name: soil-api
 spec:
   entryPoints:
+    - websecure
     - web
   routes:
   - kind: Rule
