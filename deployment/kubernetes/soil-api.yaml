@@ -57,7 +57,6 @@ metadata:
 spec:
   entryPoints:
     - websecure
-    - web
   routes:
   - kind: Rule
     match: PathPrefix(`/soil`)
