@@ -5,6 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.docs import get_redoc_html
 from fastapi.responses import JSONResponse
+from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic_core import PydanticUndefinedType
 
 from soil_api.config import settings
@@ -23,7 +24,7 @@ def get_application() -> FastAPI:
     api.include_router(system_resources.router)
 
     api.openapi_schema = openapi.custom_openapi(api, this_dir / "example_code")
-
+    Instrumentator().instrument(api).expose(api)
     return api
 
 
