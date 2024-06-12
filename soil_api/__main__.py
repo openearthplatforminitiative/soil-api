@@ -5,6 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.openapi.docs import get_redoc_html
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic_core import PydanticUndefinedType
 
@@ -22,6 +23,10 @@ def get_application() -> FastAPI:
     )
     api.include_router(soil_routes.router)
     api.include_router(system_resources.router)
+
+    # The OpenEPI logo needs to be served as a static file since it is referenced in the OpenAPI schema
+    app.mount("/static", StaticFiles(directory="assets/"), name="static")
+
 
     api.openapi_schema = openapi.custom_openapi(api, this_dir / "example_code")
     Instrumentator().instrument(api).expose(api)
