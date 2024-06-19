@@ -20,7 +20,7 @@ with Client() as client:
 
     # Get the soil property unit and name
     bdod_name = bdod["name"]
-    bdod_unit = bdod["unit"]
+    bdod_unit = bdod["unit_measure"]["mapped_units"]
 
     # Get the soil property mean value at depth 0-5cm
     bdod_depth = bdod["depths"][0]["label"]
@@ -49,7 +49,7 @@ with Client() as client:
 
     # Get the soil property unit and name
     phh2o_name = phh2o["name"]
-    phh2o_unit = phh2o["unit"]
+    phh2o_unit = phh2o["unit_measure"]["mapped_units"]
 
     # Get the soil property 0.05 quantile value at depth 100-200cm
     phh2o_depth = phh2o["depths"][1]["label"]
