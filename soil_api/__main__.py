@@ -27,7 +27,6 @@ def get_application() -> FastAPI:
     # The OpenEPI logo needs to be served as a static file since it is referenced in the OpenAPI schema
     app.mount("/static", StaticFiles(directory="assets/"), name="static")
 
-
     api.openapi_schema = openapi.custom_openapi(api, this_dir / "example_code")
     Instrumentator().instrument(api).expose(api)
     return api
