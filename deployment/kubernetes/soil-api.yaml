@@ -18,7 +18,7 @@ spec:
         prometheus.io/path: "/metrics"
     spec:
       containers:
-        - image: ghcr.io/openearthplatforminitiative/soil-api:0.2.2
+        - image: ghcr.io/openearthplatforminitiative/soil-api:0.2.4
           name: soil-api
           ports:
             - containerPort: 8080
@@ -26,7 +26,7 @@ spec:
             - name: API_ROOT_PATH
               value: "/soil"
             - name: VERSION
-              value: "0.2.2"
+              value: "0.2.4"
             - name: API_DOMAIN
               valueFrom:
                 configMapKeyRef:
