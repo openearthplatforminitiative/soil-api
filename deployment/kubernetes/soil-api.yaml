@@ -55,6 +55,19 @@ spec:
     forceSlash: true
 ---
 apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: cors-soil
+spec:
+  headers:
+    accessControlAllowMethods:
+      - "GET"
+    accessControlAllowHeaders:
+      - "*"
+    accessControlAllowOriginList:
+      - "*"
+---
+apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: soil-api
@@ -70,3 +83,4 @@ spec:
       port: 80
     middlewares:
     - name: stripprefix-soil
+    - name: cors-soil
