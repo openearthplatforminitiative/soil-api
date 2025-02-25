@@ -55,19 +55,6 @@ spec:
     forceSlash: true
 ---
 apiVersion: traefik.io/v1alpha1
-kind: Middleware
-metadata:
-  name: cors-soil
-spec:
-  headers:
-    accessControlAllowMethods:
-      - "GET"
-    accessControlAllowHeaders:
-      - "*"
-    accessControlAllowOriginList:
-      - "*"
----
-apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
   name: soil-api
@@ -76,11 +63,23 @@ spec:
     - websecure
   routes:
   - kind: Rule
-    match: PathPrefix(`/soil`) && !PathPrefix(`/soil/metrics`)
+    match: PathPrefix(`/soil`) && !PathPrefix(`/soil/metrics`) && HeadersRegexp(`Authorization`, `.+`)
     services:
     - kind: Service
       name: soil-api
       port: 80
     middlewares:
     - name: stripprefix-soil
-    - name: cors-soil
+    - name: traefikmiddleware-cors@kubernetescrd
+    - name: traefikmiddleware-jwt@kubernetescrd
+    - name: traefikmiddleware-rate-limit-registered@kubernetescrd
+  - kind: Rule
+    match: PathPrefix(`/soil`) && !PathPrefix(`/soil/metrics`) && !HeadersRegexp(`Authorization`, `.+`)
+    services:
+    - kind: Service
+      name: soil-api
+      port: 80
+    middlewares:
+    - name: stripprefix-soil
+    - name: traefikmiddleware-cors@kubernetescrd
+    - name: traefikmiddleware-rate-limit-anonymous@kubernetescrd
